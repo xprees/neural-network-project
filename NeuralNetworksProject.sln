@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetworksProject", "src\NeuralNetworksProject\NeuralNetworksProject.csproj", "{C6FBF4C1-93EE-4E64-B90A-0733F223141B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9353F520-4A01-421A-B1B3-0FEDBC35994B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{813F32C3-32EF-40C7-89A7-DD6680D6BE9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{D6FBE3EE-AAED-4AB7-BE3E-EAA98CF6B883}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{09512CB9-4540-48CD-A640-F2F733086218}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6FBF4C1-93EE-4E64-B90A-0733F223141B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6FBF4C1-93EE-4E64-B90A-0733F223141B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6FBF4C1-93EE-4E64-B90A-0733F223141B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6FBF4C1-93EE-4E64-B90A-0733F223141B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C6FBF4C1-93EE-4E64-B90A-0733F223141B} = {9353F520-4A01-421A-B1B3-0FEDBC35994B}
+	EndGlobalSection
+EndGlobal
