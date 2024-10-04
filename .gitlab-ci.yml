@@ -1,0 +1,41 @@
+stages:
+  - test
+  - build
+  - deploy
+
+
+test_solution:
+  tags:
+    - stratus
+  stage: test
+  before_script:
+    - dotnet --version
+  script:
+    - 'dotnet test --test-adapter-path:. --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"'
+  artifacts:
+    when: always
+    expire_in: 10 days
+    paths:
+      - ./**/*test-result.xml
+    reports:
+      junit:
+        - ./**/*test-result.xml
+  environment:
+    name: Development
+
+
+build:
+  rules:
+    - when: on_success
+  tags:
+    - stratus
+  stage: build
+  script: dotnet publish -r linux-x64 -c Release
+  artifacts:
+    when: on_success
+    expire_in: 2 days
+    paths:
+      - ./**/bin/Release/**/linux-x64/native/**.*
+  environment:
+    name: Production
+
