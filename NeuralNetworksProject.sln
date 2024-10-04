@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetworksProject", "src\NeuralNetworksProject\NeuralNetworksProject.csproj", "{C6FBF4C1-93EE-4E64-B90A-0733F223141B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNProject", "src\NNProject\NNProject.csproj", "{C6FBF4C1-93EE-4E64-B90A-0733F223141B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9353F520-4A01-421A-B1B3-0FEDBC35994B}"
 EndProject
