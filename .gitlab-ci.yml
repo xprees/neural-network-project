@@ -36,6 +36,8 @@ build:
     expire_in: 2 days
     paths:
       - ./**/bin/Release/**/linux-x64/native/**
+    exclude:
+      - ./**/*.dbg # ignore debugging symbols
   environment:
     name: Production
 
