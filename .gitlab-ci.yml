@@ -35,7 +35,7 @@ build:
     when: on_success
     expire_in: 2 days
     paths:
-      - ./**/bin/Release/**/linux-x64/native/**.*
+      - ./**/bin/Release/**/linux-x64/native/**
   environment:
     name: Production
 
