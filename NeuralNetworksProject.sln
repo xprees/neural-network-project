@@ -17,6 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{09512CB9-4540-48CD-A640-F2F733086218}"
+	ProjectSection(SolutionItems) = preProject
+		data\fashion_mnist_test_labels.csv = data\fashion_mnist_test_labels.csv
+		data\fashion_mnist_test_vectors.csv = data\fashion_mnist_test_vectors.csv
+		data\fashion_mnist_train_labels.csv = data\fashion_mnist_train_labels.csv
+		data\fashion_mnist_train_vectors.csv = data\fashion_mnist_train_vectors.csv
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNProjectTests", "tests\NNProjectTests\NNProjectTests.csproj", "{02565DFA-E825-4527-A304-09ABF3CDC843}"
 EndProject
