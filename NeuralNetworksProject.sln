@@ -11,6 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		.gitignore = .gitignore
 		README.md = README.md
 		.gitlab-ci.yml = .gitlab-ci.yml
+		.gitattributes = .gitattributes
+		example_test_predictions.csv = example_test_predictions.csv
+		run.sh = run.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{09512CB9-4540-48CD-A640-F2F733086218}"
