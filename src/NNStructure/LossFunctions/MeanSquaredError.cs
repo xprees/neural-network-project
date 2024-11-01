@@ -5,7 +5,9 @@ public class MeanSquaredError : ILossFunction
     public float Calculate(float[] predicted, float[] expected)
     {
         if (predicted.Length != expected.Length)
+        {
             throw new ArgumentException("The length of predicted and expected arrays must be the same.");
+        }
 
         var sum = 0f;
         for (var i = 0; i < predicted.Length; i++)
