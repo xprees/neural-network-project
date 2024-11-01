@@ -5,6 +5,8 @@ stages:
 
 
 test_solution:
+  rules:
+    - when: on_success
   tags:
     - stratus
   stage: test
