@@ -46,7 +46,18 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     {
         for (var epoch = 0; epoch < epochs; epoch++)
         {
-            // TODO implement 
+            for (var i = 0; i < inputMiniBatch.Length; i++)
+            {
+                var miniBatch = inputMiniBatch[i];
+                var predictedOutput = ForwardPropagate(miniBatch);
+
+                BackPropagate(predictedOutput, expectedResults[i]);
+
+                foreach (var layer in Layers)
+                {
+                    layer.UpdateWeights(learningRate);
+                }
+            }
         }
     }
 }
