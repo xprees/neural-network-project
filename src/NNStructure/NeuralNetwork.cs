@@ -30,14 +30,17 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         return output;
     }
 
-    public void BackPropagate(float[] expectedOutput)
+    public void BackPropagate(float[] predictedOutput, float[] expectedOutput)
     {
+        var lossGradient = lossFunction.CalculateGradient(predictedOutput, expectedOutput);
+
         for (var i = Layers.Count - 1; i >= 0; i--)
         {
             var layer = Layers[i];
-            // TODO implement
+            lossGradient = layer.DoBackpropagation(lossGradient);
         }
     }
+
 
     public void Train(float[][] inputMiniBatch, float[][] expectedResults, int epochs, float learningRate)
     {
