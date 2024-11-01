@@ -10,6 +10,14 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 
     public void AddLayer(ILayer layer) => Layers.Add(layer);
 
+    public void InitializeWeights()
+    {
+        foreach (var layer in Layers)
+        {
+            layer.InitializeWeights(initializer);
+        }
+    }
+
     /// Does the forward propagation for the input vector and returns prediction vector 
     public float[] ForwardPropagate(float[] input)
     {
