@@ -2,6 +2,6 @@ namespace NNStructure.ActivationFunctions;
 
 public interface IActivationFunction
 {
-    float Activate(Neuron neuron);
+    float Activate(float potential);
     float Derivative(float value);
 }
