@@ -22,8 +22,6 @@ test_solution:
     reports:
       junit:
         - ./**/*test-result.xml
-  environment:
-    name: Development
 
 
 build:
