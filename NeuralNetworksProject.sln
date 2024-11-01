@@ -27,6 +27,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNProject.Tests", "tests\NNProject.Tests\NNProject.Tests.csproj", "{02565DFA-E825-4527-A304-09ABF3CDC843}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "evaluator", "evaluator", "{572A9DD2-5F0D-4268-B51C-0A9132107CB0}"
+	ProjectSection(SolutionItems) = preProject
+		evaluator\evaluate.py = evaluator\evaluate.py
+		evaluator\README.md = evaluator\README.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNStructure", "src\NNStructure\NNStructure.csproj", "{A0CCF809-52D4-430A-8636-138FC2898989}"
 EndProject
