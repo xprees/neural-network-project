@@ -56,5 +56,28 @@ picture = loader.GetPicBytes();
 Console.WriteLine(picture.Length); 
 PrintPicture(picture);
 
+loader.Dispose();
 
 
+
+DataLoader loader2 = new DataLoader(dataFilePath, false);
+int[] picture2;
+
+// can't read one line (read whole file was selected in constructor)
+try
+{
+    picture2 = loader2.GetPicBytes();
+    Console.WriteLine(picture2.Length);
+    PrintPicture(picture2);
+}
+catch (ApplicationException e)
+{
+    Console.WriteLine(e.Message);
+}
+
+// reads the whole dataset
+picture2 = loader2.GetAllBytes();
+Console.WriteLine(picture2.Length);
+
+
+loader2.Dispose();
