@@ -1,59 +1,62 @@
-﻿namespace DataLoading;
-
-public class DataLoader
+﻿namespace DataLoading
 {
-    private readonly FileStream _fileStream;
-    private readonly StreamReader _streamReader;
-
-    private bool? _byRow = null;
-    
-
-    public DataLoader(string path)
+    public class DataLoader : IDisposable
     {
-        _fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-        _streamReader = new StreamReader(_fileStream);
-    }
+        private readonly StreamReader _streamReader;
 
-    // Read one line (one picture) and returns as int[]
-    public int[] GetPicBytes()
-    {
-        if (_byRow == null)
+        private readonly bool _byRow;
+
+        public DataLoader(string path, bool byRow = true)
         {
-            _byRow = true;
-        } else if (_byRow == false)
-        {
-            return new int[0];
+            _streamReader = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read));
+            _byRow = byRow;
         }
 
-        string line = _streamReader.ReadLine() ?? throw new InvalidOperationException();
-        return line.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => int.Parse(s.Trim()))
-            .ToArray();
-    }
+        public int[] GetPicBytes()
+        {
+            if (!_byRow)
+            {
+                throw new ApplicationException("Reading whole file was specified in constructor");
+            }
+            string line = _streamReader.ReadLine();
+            if (line == null)
+            {
+                throw new InvalidOperationException("End of file reached or file is empty.");
+            }
 
-    // Reads whole file and returns as int[] (size 28*28*rows)
-    public int[] GetAllBytes()
-    {
-        if (_byRow == null)
-        {
-            _byRow = false;
-        } else
-        {
-            return new int[0];
+            return ParseLine(line);
         }
-        string bytes = _streamReader.ReadToEnd();
-        
-        Close();
-        
-        return bytes.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => int.Parse(s.Trim()))
-            .ToArray();
-    }
 
-    private void Close()
-    {
-        _streamReader.Close();
-        _fileStream.Close();
+        public int[] GetAllBytes()
+        {
+            if (_byRow)
+            {
+                throw new ApplicationException("Reading by row was specified in constructor");
+            }
+
+            int[] allLines = ParseLine(_streamReader.ReadToEnd());
+
+            Dispose();
+            return allLines.ToArray();
+        }
+
+        private static int[] ParseLine(string line)
+        {
+            try
+            {
+                return line.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => int.Parse(s.Trim()))
+                    .ToArray();
+            }
+            catch (FormatException ex)
+            {
+                throw new InvalidDataException("Data format is invalid.", ex);
+            }
+        }
+
+        public void Dispose()
+        {
+            _streamReader?.Dispose();
+        }
     }
-    
 }
