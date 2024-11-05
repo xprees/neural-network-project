@@ -2,39 +2,57 @@
 
 public class DataLoader
 {
-    private const int RowSize = 28;
-    private const int BytesInRow = RowSize * RowSize;
+    private readonly FileStream _fileStream;
+    private readonly StreamReader _streamReader;
 
-    private FileStream _fileStream;
-    private BinaryReader _reader;
+    private bool? _byRow = null;
+    
 
     public DataLoader(string path)
     {
         _fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        _streamReader = new StreamReader(_fileStream);
+    }
 
-        if (_fileStream == null)
+    // Read one line (one picture) and returns as int[]
+    public int[] GetPicBytes()
+    {
+        if (_byRow == null)
         {
-            throw new IOException("File could not be opened.");
-        }
-        else
+            _byRow = true;
+        } else if (_byRow == false)
         {
-            _reader = new BinaryReader(_fileStream);
+            return new int[0];
         }
+
+        string line = _streamReader.ReadLine() ?? throw new InvalidOperationException();
+        return line.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => int.Parse(s.Trim()))
+            .ToArray();
     }
 
-    public byte[] GetPicBytes()
+    // Reads whole file and returns as int[] (size 28*28*rows)
+    public int[] GetAllBytes()
     {
-        return _reader.ReadBytes(BytesInRow);
+        if (_byRow == null)
+        {
+            _byRow = false;
+        } else
+        {
+            return new int[0];
+        }
+        string bytes = _streamReader.ReadToEnd();
+        
+        Close();
+        
+        return bytes.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => int.Parse(s.Trim()))
+            .ToArray();
     }
 
-    public byte[] GetAllBytes()
+    private void Close()
     {
-        return _reader.ReadBytes((int) _fileStream.Length);
-    }
-
-    public void Close()
-    {
-        _reader.Close();
+        _streamReader.Close();
         _fileStream.Close();
     }
     
