@@ -9,6 +9,8 @@ public class MeanSquaredError : ILossFunction
             throw new ArgumentException("The length of predicted and expected arrays must be the same.");
         }
 
+        if (predicted.Length <= 0) return 0;
+
         var sum = 0f;
         for (var i = 0; i < predicted.Length; i++)
         {
@@ -21,6 +23,7 @@ public class MeanSquaredError : ILossFunction
 
     public float[] CalculateGradient(float[] predicted, float[] expected)
     {
+        // TODO
         throw new NotImplementedException();
     }
 }
