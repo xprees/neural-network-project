@@ -1,5 +1,6 @@
 using NNStructure.ActivationFunctions;
 using NNStructure.Initialization;
+using NNStructure.Optimizers;
 
 namespace NNStructure.Layers;
 
@@ -17,9 +18,14 @@ public interface ILayer
 
     IActivationFunction ActivationFunction { get; set; }
 
+    /// Initializes all weights in the Layer using initializer
     void InitializeWeights(IWeightsInitializer initializer);
 
-    void UpdateWeights(float learningRate);
+    /// Resets the gradients of Neurons in the layer
+    void ResetGradients();
+
+    /// Apply all neuron gradients to the weights of the layer
+    void UpdateWeights(IOptimizer optimizer);
 
     float[] DoForwardPass(float[] input);
 
