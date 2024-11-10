@@ -14,6 +14,8 @@ public class MeanSquaredErrorTests
         _squaredError = new MeanSquaredError();
     }
 
+    #region Error
+
     [Test]
     public void CalculateSimpleZeroError()
     {
@@ -33,7 +35,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().Be(1);
+        error.Should().Be(0.5f);
     }
 
     [Test]
@@ -44,7 +46,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
     }
 
     [Test]
@@ -66,7 +68,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
     }
 
     [Test]
@@ -77,17 +79,78 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
+    }
+
+    #endregion
+
+    #region Gradient
+
+    [Test]
+    public void CalculateGradientSimpleZeroError()
+    {
+        float[] expected = [1f];
+        float[] predicted = [1f];
+
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
+
+        gradient.Should().Equal(0f / 1);
     }
 
     [Test]
-    public void CalculateLargeValuesError()
+    public void CalculateGradientSimpleNonZeroError()
+    {
+        float[] expected = [1f];
+        float[] predicted = [0f];
+
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
+
+        gradient.Should().Equal(-1f / 1);
+    }
+
+    [Test]
+    public void CalculateGradientMultipleValuesError()
+    {
+        float[] expected = [1f, 2f, 3f];
+        float[] predicted = [1f, 2f, 2f];
+
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
+
+        gradient.Should().Equal(0f, 0f, -1f / 3f);
+    }
+
+    [Test]
+    public void CalculateGradientNegativeValuesError()
+    {
+        float[] expected = [-1f, -2f, -3f];
+        float[] predicted = [-1f, -2f, -2f];
+
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
+
+        gradient.Should().Equal(0f, 0f, 1f / 3f); // Divide by length
+    }
+
+    [Test]
+    public void CalculateGradientMixedValuesError()
+    {
+        float[] expected = [1f, -2f, 3f];
+        float[] predicted = [1f, -2f, 2f];
+
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
+
+        gradient.Should().Equal(0f, 0f, -1f / 3f);
+    }
+
+    [Test]
+    public void CalculateGradientLargeValuesError()
     {
         float[] expected = [1000f, 2000f, 3000f];
         float[] predicted = [1000f, 2000f, 2000f];
 
-        var error = _squaredError.Calculate(predicted, expected);
+        var gradient = _squaredError.CalculateGradient(predicted, expected);
 
-        error.Should().BeApproximately(333333.333f, 0.001f);
+        gradient.Should().Equal(0f, 0f, -1000f / 3f);
     }
+
+    #endregion
 }
