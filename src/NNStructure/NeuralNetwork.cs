@@ -47,22 +47,23 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     }
 
 
-    public void Train(float[][] inputs, float[][] expectedResults, int epochs, int miniBatchSize)
+    public void Train(float[][] inputs, float[][] expectedResults, int maxEpochs, int miniBatchSize)
     {
-        for (var epoch = 0; epoch < epochs; epoch++)
+        for (var epoch = 0; epoch < maxEpochs; epoch++)
         {
             Layers.ForEach(l => l.ResetGradients());
 
-            var miniBatch = ChooseMiniBatch(inputs, epoch, miniBatchSize);
+            var miniBatch = ChooseMiniBatch(inputs, expectedResults, epoch, miniBatchSize)
+                .ToArray();
             var gradientsByTrainingExample =
                 new ConcurrentDictionary<int, float[][]>(); // Gradients for each training example by k their index
 
-            for (var k = 0; k < inputs.Length; k++)
+            for (var k = 0; k < miniBatch.Length; k++)
             {
-                var trainingExample = miniBatch[k];
+                var (trainingExample, expectedResult) = miniBatch[k];
                 var predictedOutput = ForwardPropagate(trainingExample);
 
-                var kthBatchGradients = BackPropagate(predictedOutput, expectedResults[k]);
+                var kthBatchGradients = BackPropagate(predictedOutput, expectedResult);
                 if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
                 {
                     throw new InvalidOperationException("Failed to add gradients to the dictionary.");
@@ -83,7 +84,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     {
         if (gradientsByTrainingExample.IsEmpty)
         {
-            throw new InvalidOperationException("The gradients dictionary is empty.");
+            throw new InvalidOperationException("No gradients calculated for updating.");
         }
 
         var layersGradients = new float[Layers.Count][];
@@ -114,9 +115,21 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         return layersGradients;
     }
 
-    private float[][] ChooseMiniBatch(float[][] inputs, int epoch, int miniBatchSize) =>
-        inputs
-            .Skip(epoch * miniBatchSize)
-            .Take(miniBatchSize)
-            .ToArray();
+    /// Chooses a mini batch of examples from the training set.
+    /// <remarks>Cycles through dataset if it runs out of new cases</remarks>
+    private IEnumerable<(float[] trainingExample, float[] expectedResults)> ChooseMiniBatch(float[][] inputs,
+        float[][] expectedResults, int epoch,
+        int miniBatchSize)
+    {
+        var inputsLength = inputs.Length;
+        var startIndex = epoch * miniBatchSize;
+
+        var examplesCount = 0;
+        while (examplesCount <= miniBatchSize)
+        {
+            yield return (inputs[startIndex % inputsLength], expectedResults[startIndex % inputsLength]);
+            startIndex++;
+            examplesCount++;
+        }
+    }
 }
