@@ -7,5 +7,5 @@ public interface IOptimizer
 {
     public float LearningRate { get; set; }
 
-    float UpdateWeight(float weight, float gradients, int batchSize);
+    float UpdateWeight(float weight, float gradient, int batchSize);
 }
