@@ -81,10 +81,26 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 
     private float[][] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][]> gradientsByTrainingExample)
     {
+        if (gradientsByTrainingExample.IsEmpty)
+        {
+            throw new InvalidOperationException("The gradients dictionary is empty.");
+        }
+
         var layersGradients = new float[Layers.Count][];
+        for (var i = 0; i < Layers.Count; i++)
+        {
+            layersGradients[i] = new float[gradientsByTrainingExample.Values.FirstOrDefault()?[i].Length ?? 0];
+        }
+
         foreach (var kthExampleGradients in gradientsByTrainingExample.Values)
         {
-            // TODO implement aggregation -> need to transpose the data
+            for (var layerIndex = 0; layerIndex < Layers.Count; layerIndex++)
+            {
+                for (var i = 0; i < kthExampleGradients[layerIndex].Length; i++)
+                {
+                    layersGradients[layerIndex][i] += kthExampleGradients[layerIndex][i];
+                }
+            }
         }
 
         if (layersGradients.Length != Layers.Count)
@@ -93,6 +109,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 $"The number of layers ({Layers.Count}) and the number of gradients ({layersGradients.Length}) do not match."
             );
         }
+
 
         return layersGradients;
     }
