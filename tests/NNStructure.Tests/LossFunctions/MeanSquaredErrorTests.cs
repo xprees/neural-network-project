@@ -33,7 +33,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().Be(1);
+        error.Should().Be(0.5f);
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(0.333f, 0.001f);
+        error.Should().BeApproximately(0.333f / 2f, 0.001f);
     }
 
     [Test]
@@ -88,6 +88,6 @@ public class MeanSquaredErrorTests
 
         var error = _squaredError.Calculate(predicted, expected);
 
-        error.Should().BeApproximately(333333.333f, 0.001f);
+        error.Should().BeApproximately(333333.333f / 2f, 0.001f);
     }
 }
