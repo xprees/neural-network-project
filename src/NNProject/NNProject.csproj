@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\tests\NNStructure.Tests\NNStructure.Tests.csproj" />
     <ProjectReference Include="..\NNStructure\NNStructure.csproj" />
   </ItemGroup>
 
