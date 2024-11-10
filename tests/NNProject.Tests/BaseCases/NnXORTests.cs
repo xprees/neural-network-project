@@ -36,12 +36,12 @@ public class NnXorTests
     [SetUp]
     public void Setup()
     {
-        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(2f));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.005f));
         _nn.AddLayer(new FullyConnectedLayer(2, 2, new Relu()));
         _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
     }
 
-    [TestCase(5, 5)]
+    [TestCase(2, 3)]
     public void TestNnXorTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();
@@ -54,13 +54,13 @@ public class NnXorTests
         var result = _nn.ForwardPropagate([1, 1]).First();
         result.Should().BeApproximately(0, precision, $"For [1, 1] expected 0, got {result}");
 
-        // 0, 0 = 0
-        result = _nn.ForwardPropagate([0, 0]).First();
-        result.Should().BeApproximately(0, precision, $"For [0, 0] expected 0, got {result}");
-
         // 1, 0 = 1
         result = _nn.ForwardPropagate([1, 0]).First();
         result.Should().BeApproximately(1, precision, $"For [1, 0] expected 1, got {result}");
+
+        // 0, 0 = 0
+        result = _nn.ForwardPropagate([0, 0]).First();
+        result.Should().BeApproximately(0, precision, $"For [0, 0] expected 0, got {result}");
 
         // 0, 1 = 1
         result = _nn.ForwardPropagate([0, 1]).First();
