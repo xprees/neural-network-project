@@ -51,9 +51,12 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     {
         for (var epoch = 0; epoch < epochs; epoch++)
         {
+            Layers.ForEach(l => l.ResetGradients());
+
             var miniBatch = ChooseMiniBatch(inputs, epoch, miniBatchSize);
             var gradientsByTrainingExample =
                 new ConcurrentDictionary<int, float[][]>(); // Gradients for each training example by k their index
+
             for (var k = 0; k < inputs.Length; k++)
             {
                 var trainingExample = miniBatch[k];
@@ -66,12 +69,32 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 }
             }
 
-            foreach (var layer in Layers)
+            var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample);
+            for (var i = 0; i < Layers.Count; i++)
             {
-                layer.AggregateGradients(gradientsByTrainingExample, miniBatchSize);
-                layer.UpdateWeights(optimizer);
+                var layer = Layers[i];
+                var layerGradients = layersGradients[i];
+                layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
             }
         }
+    }
+
+    private float[][] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][]> gradientsByTrainingExample)
+    {
+        var layersGradients = new float[Layers.Count][];
+        foreach (var kthExampleGradients in gradientsByTrainingExample.Values)
+        {
+            // TODO implement aggregation -> need to transpose the data
+        }
+
+        if (layersGradients.Length != Layers.Count)
+        {
+            throw new InvalidOperationException(
+                $"The number of layers ({Layers.Count}) and the number of gradients ({layersGradients.Length}) do not match."
+            );
+        }
+
+        return layersGradients;
     }
 
     private float[][] ChooseMiniBatch(float[][] inputs, int epoch, int miniBatchSize) =>
