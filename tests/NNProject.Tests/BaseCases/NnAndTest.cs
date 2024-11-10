@@ -37,8 +37,8 @@ public class NnAndTest
     public void Setup()
     {
         _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.005f));
-        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Relu()));
-        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
+        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Sigmoid()));
+        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Sigmoid()));
     }
 
     [TestCase(1, 5)]

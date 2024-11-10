@@ -36,9 +36,9 @@ public class NnXorTests
     [SetUp]
     public void Setup()
     {
-        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.05f));
-        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Relu()));
-        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.5f));
+        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Sigmoid()));
+        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Sigmoid()));
     }
 
     [TestCase(1, 5)]
