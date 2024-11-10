@@ -1,10 +1,12 @@
+using System.Collections.Concurrent;
 using NNStructure.Initialization;
 using NNStructure.Layers;
 using NNStructure.LossFunctions;
+using NNStructure.Optimizers;
 
 namespace NNStructure;
 
-public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initializer)
+public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initializer, IOptimizer optimizer)
 {
     public List<ILayer> Layers { get; } = [];
 
@@ -30,34 +32,51 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         return output;
     }
 
-    public void BackPropagate(float[] predictedOutput, float[] expectedOutput)
+    public float[][] BackPropagate(float[] predictedOutput, float[] expectedOutput)
     {
         var lossGradient = lossFunction.CalculateGradient(predictedOutput, expectedOutput);
+        var batchGradients = new float[Layers.Count][];
 
         for (var i = Layers.Count - 1; i >= 0; i--)
         {
             var layer = Layers[i];
-            lossGradient = layer.DoBackpropagation(lossGradient);
+            lossGradient = layer.DoBackpropagation(lossGradient, ref batchGradients[i]);
         }
+
+        return batchGradients;
     }
 
 
-    public void Train(float[][] inputMiniBatch, float[][] expectedResults, int epochs, float learningRate)
+    public void Train(float[][] inputs, float[][] expectedResults, int epochs, int miniBatchSize)
     {
         for (var epoch = 0; epoch < epochs; epoch++)
         {
-            for (var i = 0; i < inputMiniBatch.Length; i++)
+            var miniBatch = ChooseMiniBatch(inputs, epoch, miniBatchSize);
+            var gradientsByTrainingExample =
+                new ConcurrentDictionary<int, float[][]>(); // Gradients for each training example by k their index
+            for (var k = 0; k < inputs.Length; k++)
             {
-                var miniBatch = inputMiniBatch[i];
-                var predictedOutput = ForwardPropagate(miniBatch);
+                var trainingExample = miniBatch[k];
+                var predictedOutput = ForwardPropagate(trainingExample);
 
-                BackPropagate(predictedOutput, expectedResults[i]);
-
-                foreach (var layer in Layers)
+                var kthBatchGradients = BackPropagate(predictedOutput, expectedResults[k]);
+                if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
                 {
-                    layer.UpdateWeights(learningRate);
+                    throw new InvalidOperationException("Failed to add gradients to the dictionary.");
                 }
+            }
+
+            foreach (var layer in Layers)
+            {
+                layer.AggregateGradients(gradientsByTrainingExample, miniBatchSize);
+                layer.UpdateWeights(optimizer);
             }
         }
     }
+
+    private float[][] ChooseMiniBatch(float[][] inputs, int epoch, int miniBatchSize) =>
+        inputs
+            .Skip(epoch * miniBatchSize)
+            .Take(miniBatchSize)
+            .ToArray();
 }
