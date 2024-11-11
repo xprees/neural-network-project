@@ -38,7 +38,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNStructure.Tests", "tests\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarking", "benchmarking", "{AFD13BC1-A5C4-43C4-B48E-FBF93EBB5107}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NN.Benchmarking", "src\NN.Benchmarking\NN.Benchmarking.csproj", "{57FFDC10-AFA7-4043-9EFC-45283A20759E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NN.Benchmarking", "src\benchmarking\NN.Benchmarking\NN.Benchmarking.csproj", "{57FFDC10-AFA7-4043-9EFC-45283A20759E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
