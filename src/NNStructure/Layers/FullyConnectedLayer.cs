@@ -76,13 +76,13 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         {
             var neuron = Neurons[i];
             var activationDerivative = ActivationFunction.Derivative(neuron.InnerPotential);
-            var delta = topLayerGradient[i] * activationDerivative;
+            var gradient = topLayerGradient[i] * activationDerivative;
 
-            batchGradients[i] = delta;
+            batchGradients[i] = gradient;
 
             for (var j = 1; j < InputSize + 1; j++) // Start from 1 to skip bias
             {
-                inputGradients[j - 1] += Weights[i, j] * delta;
+                inputGradients[j - 1] += Weights[i, j] * gradient;
             }
         }
 
