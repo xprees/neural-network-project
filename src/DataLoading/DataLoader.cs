@@ -22,7 +22,7 @@ namespace DataLoading
         /// <summary>
         /// Reads one line of specified CSV file
         /// </summary>
-        /// <returns>returns int[] of values from one line</returns>
+        /// <returns>returns float[][] of values from one line</returns>
         /// <exception cref="ApplicationException">Other read type specified in constructor</exception>
         /// <exception cref="InvalidOperationException">EOF</exception>
         public float[][] ReadOneVector()
@@ -44,6 +44,12 @@ namespace DataLoading
             return ParseLine(line);
         }
         
+        /// <summary>
+        /// Reads batch of n vectors from file
+        /// </summary>
+        /// <param name="n">number of rows to be read</param>
+        /// <returns>array of n arrays (if not enough rows, rest is null)</returns>
+        /// <exception cref="ApplicationException"></exception>
         public float[][] ReadNVectors(int n)
         {
             if (_streamReader.Peek() < 0)
@@ -54,7 +60,7 @@ namespace DataLoading
             {
                 throw new ApplicationException("Reading whole file was specified in the constructor");
             }
-
+            
             float [][] nLines = new float[n][];
             for (int i = 0; i < n; i++)
             {
@@ -71,7 +77,7 @@ namespace DataLoading
         /// <summary>
         /// Reads whole specified CSV file
         /// </summary>
-        /// <returns>int[] of all numbers from file</returns>
+        /// <returns>float[][] of all rows from the file</returns>
         /// <exception cref="ApplicationException">Other read type specified in constructor</exception>
         public float[][] ReadAllVectors()
         {
@@ -90,7 +96,7 @@ namespace DataLoading
         }
 
         /// <summary>
-        /// Removes commas and \n characters and parse string to int array
+        /// Parse string by \n and comma to float[][] array
         /// </summary>
         /// <param name="line">string to be parsed</param>
         /// <returns>int[] of all values from line</returns>
