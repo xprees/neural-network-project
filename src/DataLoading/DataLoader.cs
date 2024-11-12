@@ -25,11 +25,11 @@ namespace DataLoading
         /// <returns>returns float[][] of values from one line</returns>
         /// <exception cref="ApplicationException">Other read type specified in constructor</exception>
         /// <exception cref="InvalidOperationException">EOF</exception>
-        public float[][] ReadOneVector()
+        public float[]? ReadOneVector()
         {
             if (_streamReader.Peek() < 0)
             {
-                return new float[0][];
+                return null;
             }
             if (!_byRow)
             {
@@ -41,7 +41,7 @@ namespace DataLoading
                 throw new InvalidOperationException("End of file reached or file is empty.");
             }
 
-            return ParseLine(line);
+            return ParseLine(line)[0];
         }
         
         /// <summary>
@@ -50,7 +50,7 @@ namespace DataLoading
         /// <param name="n">number of rows to be read</param>
         /// <returns>array of n arrays (if not enough rows, rest is null)</returns>
         /// <exception cref="ApplicationException"></exception>
-        public float[][] ReadNVectors(int n)
+        public float[]?[] ReadNVectors(int n)
         {
             if (_streamReader.Peek() < 0)
             {
@@ -61,14 +61,14 @@ namespace DataLoading
                 throw new ApplicationException("Reading whole file was specified in the constructor");
             }
             
-            float [][] nLines = new float[n][];
+            float[]?[] nLines = new float[n][];
             for (int i = 0; i < n; i++)
             {
                 if (_streamReader.Peek() < 0)
                 {
                     return nLines;
                 }
-                nLines[i] = ReadOneVector()[0];
+                nLines[i] = ReadOneVector();
             }
             
             return nLines;
