@@ -5,6 +5,6 @@ public class SgdOptimizer(float learningRate) : IOptimizer
 {
     public float LearningRate { get; set; } = learningRate;
 
-    public float UpdateWeight(float weight, float gradient, int batchSize) =>
-        weight - LearningRate * (gradient / batchSize);
+    public float UpdateWeight(float weight, float gradient) =>
+        weight - LearningRate * gradient;
 }

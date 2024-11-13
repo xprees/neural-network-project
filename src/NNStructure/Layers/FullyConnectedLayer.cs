@@ -39,7 +39,7 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         {
             for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
             {
-                Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i, j], batchSize);
+                Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i, j]);
             }
         }
     }
