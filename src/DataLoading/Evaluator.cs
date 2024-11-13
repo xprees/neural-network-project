@@ -19,7 +19,6 @@ public class Evaluator(string path, float maxError = 0.0001f)
     {
         float[]?[] vectors = _resultLoader.ReadNVectors(batchSize);
         
-        // Creating the result bool? array
 
         return predictedResults
             .Select((value, i) =>
@@ -28,5 +27,16 @@ public class Evaluator(string path, float maxError = 0.0001f)
                     : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))   // Compare non-null values
             .ToArray();
         
+    }
+
+    public bool?[] EvaluateAll(float?[] predictedResults)
+    {
+        float[]?[] vectors = _resultLoader.ReadAllVectors();
+        return predictedResults
+            .Select((value, i) =>
+                value == null || vectors[i] == null 
+                    ? null
+                    : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))   // Compare non-null values
+            .ToArray();
     }
 }
