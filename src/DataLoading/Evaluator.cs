@@ -24,7 +24,7 @@ public class Evaluator(string path, float maxError = 0.0001f)
             .Select((value, i) =>
                 value == null || vectors[i] == null 
                     ? null
-                    : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))   // Compare non-null values
+                    : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))
             .ToArray();
         
     }
@@ -36,7 +36,7 @@ public class Evaluator(string path, float maxError = 0.0001f)
             .Select((value, i) =>
                 value == null || vectors[i] == null 
                     ? null
-                    : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))   // Compare non-null values
+                    : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))
             .ToArray();
     }
 }
