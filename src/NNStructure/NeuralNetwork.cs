@@ -23,6 +23,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     /// Does the forward propagation for the input vector and returns prediction vector 
     public float[] ForwardPropagate(float[] input)
     {
+        CheckInputDimensionMatchesFirstLayerOrThrow(input);
+
         var output = input;
         foreach (var layer in Layers)
         {
@@ -130,6 +132,17 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
             yield return (inputs[startIndex % inputsLength], expectedResults[startIndex % inputsLength]);
             startIndex++;
             examplesCount++;
+        }
+    }
+
+    private void CheckInputDimensionMatchesFirstLayerOrThrow(float[] input)
+    {
+        var firstLayerInputLength = Layers.FirstOrDefault()?.InputSize;
+        if (firstLayerInputLength != input.Length)
+        {
+            throw new ArgumentException(
+                $"Input length ({input.Length}) has to match first layer input size ({firstLayerInputLength})!"
+            );
         }
     }
 }
