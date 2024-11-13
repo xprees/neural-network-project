@@ -39,4 +39,18 @@ public class Evaluator(string path, float maxError = 0.0001f)
                     : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))
             .ToArray();
     }
+
+    public static float GetMax(float?[] values)
+    {
+        float? max = values.Where(x => x.HasValue).Max();
+        if (!max.HasValue)
+        {
+            throw new NullReferenceException("Array was empty!");
+        }
+        else
+        {
+            return max.Value;
+        }
+        
+    }
 }
