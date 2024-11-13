@@ -114,8 +114,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 {
                     for (var j = 0; j < kthExampleGradients[layerIndex].GetLength(1); j++)
                     {
-                        layersGradients[layerIndex][i, j] +=
-                            kthExampleGradients[layerIndex][i, j] / gradientsByTrainingExample.Count; // Average
+                        // Average will be done in optimizer
+                        layersGradients[layerIndex][i, j] += kthExampleGradients[layerIndex][i, j]; 
                     }
                 }
             }
