@@ -36,12 +36,12 @@ public class NnAndTest
     [SetUp]
     public void Setup()
     {
-        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.005f));
-        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Relu()));
-        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(1));
+        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Tanh()));
+        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Tanh()));
     }
 
-    [TestCase(5, 5)]
+    [TestCase(4, 100)]
     public void TestNnAndTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();

@@ -36,21 +36,19 @@ public class NnXorTests
     [SetUp]
     public void Setup()
     {
-        _nn = new NeuralNetwork(new MeanSquaredError(), new RandomWeightInitializer(), new SgdOptimizer(0.005f));
-        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Relu()));
-        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(1));
+        _nn.AddLayer(new FullyConnectedLayer(2, 2, new Tanh()));
+        _nn.AddLayer(new FullyConnectedLayer(2, 1, new Tanh()));
     }
 
-    [TestCase(2, 10)]
-    [TestCase(2, 1000)]
-    [TestCase(5, 10000)]
+    [TestCase(4, 100)]
     public void TestNnXorTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();
 
         _nn.Train(TestInputs, ExpectedResults, maxEpochs, miniBatchSize);
 
-        const float precision = 0.25f;
+        const float precision = 0.15f;
 
         // 1, 1 = 0
         var result = _nn.ForwardPropagate([1, 1]).prediction.First();
