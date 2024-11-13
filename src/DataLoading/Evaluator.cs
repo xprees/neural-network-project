@@ -17,6 +17,7 @@ public class Evaluator(string path, float maxError = 0.0001f)
         {
             throw new NullReferenceException("Read result is null");
         }
+
         return MathF.Abs(predictedResult - vector[0]) < maxError;
 
     }
@@ -30,38 +31,39 @@ public class Evaluator(string path, float maxError = 0.0001f)
     public bool?[] EvaluateBatch(float?[] predictedResults, int batchSize)
     {
         float[]?[] vectors = _resultLoader.ReadNVectors(batchSize);
-        
+
 
         return predictedResults
             .Select((value, i) =>
-                value == null || vectors[i] == null 
+                value == null || vectors[i] == null
                     ? null
                     : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))
             .ToArray();
-        
+
     }
-/// <summary>
-/// Evaluates predictedResults with whole file of labels
-/// </summary>
-/// <param name="predictedResults">array of all predicted Values</param>
-/// <returns>bool array -> true if values differ less than maximal error</returns>
+
+    /// <summary>
+    /// Evaluates predictedResults with whole file of labels
+    /// </summary>
+    /// <param name="predictedResults">array of all predicted Values</param>
+    /// <returns>bool array -> true if values differ less than maximal error</returns>
     public bool?[] EvaluateAll(float?[] predictedResults)
     {
         float[]?[] vectors = _resultLoader.ReadAllVectors();
         return predictedResults
             .Select((value, i) =>
-                value == null || vectors[i] == null 
+                value == null || vectors[i] == null
                     ? null
                     : (bool?)(MathF.Abs((float)(value - vectors[i][0])) < maxError))
             .ToArray();
     }
 
-/// <summary>
-/// Helper function for getting maximal value from array
-/// </summary>
-/// <param name="values">array</param>
-/// <returns>maximal value</returns>
-/// <exception cref="NullReferenceException">if there is no value in the array</exception>
+    /// <summary>
+    /// Helper function for getting maximal value from array
+    /// </summary>
+    /// <param name="values">array</param>
+    /// <returns>maximal value</returns>
+    /// <exception cref="NullReferenceException">if there is no value in the array</exception>
     public static float GetMax(float?[] values)
     {
         float? max = values.Where(x => x.HasValue).Max();
@@ -73,6 +75,7 @@ public class Evaluator(string path, float maxError = 0.0001f)
         {
             return max.Value;
         }
-        
+
     }
+
 }
