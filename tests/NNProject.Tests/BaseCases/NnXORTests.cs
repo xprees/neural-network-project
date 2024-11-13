@@ -41,7 +41,9 @@ public class NnXorTests
         _nn.AddLayer(new FullyConnectedLayer(2, 1, new Relu()));
     }
 
-    [TestCase(2, 3)]
+    [TestCase(2, 10)]
+    [TestCase(2, 1000)]
+    [TestCase(5, 10000)]
     public void TestNnXorTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();
@@ -51,19 +53,19 @@ public class NnXorTests
         const float precision = 0.25f;
 
         // 1, 1 = 0
-        var result = _nn.ForwardPropagate([1, 1]).First();
+        var result = _nn.ForwardPropagate([1, 1]).prediction.First();
         result.Should().BeApproximately(0, precision, $"For [1, 1] expected 0, got {result}");
 
         // 1, 0 = 1
-        result = _nn.ForwardPropagate([1, 0]).First();
+        result = _nn.ForwardPropagate([1, 0]).prediction.First();
         result.Should().BeApproximately(1, precision, $"For [1, 0] expected 1, got {result}");
 
         // 0, 0 = 0
-        result = _nn.ForwardPropagate([0, 0]).First();
+        result = _nn.ForwardPropagate([0, 0]).prediction.First();
         result.Should().BeApproximately(0, precision, $"For [0, 0] expected 0, got {result}");
 
         // 0, 1 = 1
-        result = _nn.ForwardPropagate([0, 1]).First();
+        result = _nn.ForwardPropagate([0, 1]).prediction.First();
         result.Should().BeApproximately(1, precision, $"For [0, 1] expected 1, got {result}");
     }
 }

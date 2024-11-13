@@ -51,19 +51,19 @@ public class NnAndTest
         const float precision = 0.25f;
 
         // 1, 1 = 1
-        var result = _nn.ForwardPropagate([1, 1]).First();
+        var result = _nn.ForwardPropagate([1, 1]).prediction.First();
         result.Should().BeApproximately(1, precision, $"For [1, 1] expected 1, got {result}");
 
         // 0, 0 = 0
-        result = _nn.ForwardPropagate([0, 0]).First();
+        result = _nn.ForwardPropagate([0, 0]).prediction.First();
         result.Should().BeApproximately(0, precision, $"For [0, 0] expected 0, got {result}");
 
         // 1, 0 = 0
-        result = _nn.ForwardPropagate([1, 0]).First();
+        result = _nn.ForwardPropagate([1, 0]).prediction.First();
         result.Should().BeApproximately(0, precision, $"For [1, 0] expected 0, got {result}");
 
         // 0, 1 = 0
-        result = _nn.ForwardPropagate([0, 1]).First();
+        result = _nn.ForwardPropagate([0, 1]).prediction.First();
         result.Should().BeApproximately(0, precision, $"For [0, 1] expected 0, got {result}");
     }
 }

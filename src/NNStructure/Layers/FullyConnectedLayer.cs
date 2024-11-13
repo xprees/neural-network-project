@@ -33,13 +33,13 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         }
     }
 
-    public void UpdateWeights(float[] layerGradients, IOptimizer optimizer, int batchSize)
+    public void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize)
     {
         for (var i = 0; i < OutputSize; i++)
         {
             for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
             {
-                Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i], batchSize);
+                Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i, j], batchSize);
             }
         }
     }
@@ -49,7 +49,6 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         var output = new float[OutputSize];
         for (var i = 0; i < OutputSize; i++)
         {
-            var neuron = Neurons[i];
             var innerPotential = Weights[i, 0]; // Bias
             for (var j = 0; j < InputSize; j++)
             {
@@ -61,16 +60,17 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
             // TODO this won't work in parallel (changing shared state) -> use a temporary array or concurrent dictionary
             // Is it really necessary to have the neurons?
-            Neurons[i] = neuron with { InnerPotential = innerPotential, ActivationValue = activationValue };
+            Neurons[i] = Neurons[i] with { InnerPotential = innerPotential, ActivationValue = activationValue };
         }
 
         return output;
     }
 
-    public float[] DoBackpropagation(float[] topLayerGradient, ref float[] batchGradients)
+    public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput, ref float[,] layerBatchGradients)
     {
+        layerBatchGradients =
+            new float[OutputSize, InputSize + 1]; // Initialize gradients for this layer for this training example
         var inputGradients = new float[InputSize];
-        batchGradients = new float[OutputSize];
 
         for (var i = 0; i < OutputSize; i++)
         {
@@ -78,10 +78,11 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
             var activationDerivative = ActivationFunction.Derivative(neuron.InnerPotential);
             var gradient = topLayerGradient[i] * activationDerivative;
 
-            batchGradients[i] = gradient;
-
+            layerBatchGradients[i, 0] = gradient; // Bias
             for (var j = 1; j < InputSize + 1; j++) // Start from 1 to skip bias
             {
+                layerBatchGradients[i, j] = gradient * layerInput[j - 1];
+
                 inputGradients[j - 1] += Weights[i, j] * gradient;
             }
         }
