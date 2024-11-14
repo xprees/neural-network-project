@@ -3,6 +3,7 @@
 public class Evaluator(float maxError = 0.0001f)
 {
 
+    // Checks if one prediction was correct
     public bool EvaluateCompleteResult(float[] predicted, float[] actual)
     {
         return predicted.
@@ -10,16 +11,19 @@ public class Evaluator(float maxError = 0.0001f)
             .All(condition => condition);
     }
 
+    // Converts vectors like (0.0, 0.1, 0.2, 0.1, 0.98, 0.12, 0.11, 0.11, 0.3, 0.4) to number (4)
     public int[] ConvertToClasses(float[][] toConvert)
     {
         return toConvert.Select(value => Array.IndexOf(value, value.Max())).ToArray();
     }
 
+    // Returns vector, where true if correct prediction, false otherwise
     public bool[] EvaluateCompletedResults(float[][] predicted, float[][] actual)
     {
         return predicted.Select((value, index) => EvaluateCompleteResult(value, actual[index])).ToArray();
     }
 
+    // From all predicted and all actual vectors computes evaluation scores
     public StatisticalMetrics EvaluateModel(float[][] predicted, float[][] actual)
     {
         if (predicted.Length != actual.Length)
