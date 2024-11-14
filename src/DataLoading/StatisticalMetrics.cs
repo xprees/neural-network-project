@@ -34,12 +34,28 @@ public struct StatisticalMetrics
         Recall = 0;
         F1Score = 0;
     }
+    
 
-    public void AssignConfusionMatrixCoefficients(int classIndex, int tp, int tn, int fp, int fn)
+    public void FillMetrics(int classIndex, int tp, int tn, int fp, int fn)
     {
         TruePositives[classIndex] = tp;
         TrueNegatives[classIndex] = tn;
         FalseNegatives[classIndex] = fn;
         FalsePositives[classIndex] = fp;
+
+        int totalPredictions = TruePositives[0] + TrueNegatives[0] + FalsePositives[0] + FalseNegatives[0];
+
+        for (int i = 0; i < 10; i++)
+        {
+            Accuracies[i] = (float)(TruePositives[i] + TrueNegatives[i]) / totalPredictions;
+            Precisions[i] = (float)(TruePositives[i]) / TruePositives[i] + FalsePositives[i];
+            Recalls[i] = (float)(TruePositives[i]) / TruePositives[i] + FalseNegatives[i];
+            F1Scores[i] = 2 * Precisions[i] * Recalls[i] / Precisions[i] + Recalls[i];
+        }
+
+        Precision = Precisions.Average();
+        Recall = Recalls.Average();
+        F1Score = F1Scores.Average();
+        Accuracy = (float)TruePositives.Sum() / totalPredictions;
     }
 }

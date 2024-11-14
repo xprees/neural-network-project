@@ -41,21 +41,21 @@ public class Evaluator(float maxError = 0.0001f)
   
                 if (convertedActual[arrayIndex] == classIndex && convertedPredicted[arrayIndex] == classIndex)
                 {
-                    tp += 1;
+                    tp++;
                 }  else if (convertedActual[arrayIndex] == classIndex && convertedPredicted[arrayIndex] != classIndex)
                 {
-                    fn += 1;
+                    fn++;
                 } else if (convertedActual[arrayIndex] != classIndex && convertedPredicted[arrayIndex] == classIndex)
                 {
-                    fp += 1;
+                    fp++;
                 }
                 else
                 {
-                    fp += 1;
+                    tn++;
                 }
 
             }
-            statisticalMetrics.AssignConfusionMatrixCoefficients(classIndex, tp, tn, fp, fn);
+            statisticalMetrics.FillMetrics(classIndex, tp, tn, fp, fn);
             
         }
 
