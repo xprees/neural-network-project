@@ -56,22 +56,16 @@ loader.Dispose();
 
 
 
-DataLoader loader2 = new DataLoader(dataFilePath, true);
+var loader2 = new DataLoader(dataFilePath, true);
 float[]?[] picture2;
 
-Evaluator evaluator = new Evaluator(resultsFilePath);
 
-Random random = new Random();
 
 
 
 
 int n = 128;
 picture2 = loader2.ReadNVectors(n);
-float?[] randomArray = Enumerable.Range(0, n)
-    .Select(_ => (float?)random.Next(0, 10))
-    .ToArray();
-bool?[] result = evaluator.EvaluateBatch(randomArray, n);
 Console.WriteLine(0 + " : " + picture2.Length);
 // Use of Preprocessing
 picture2 = Preprocessing.NormalizeByDivision(picture2);
@@ -83,23 +77,11 @@ for (int i = 1; i < 469; i++)
     picture2 = loader2.ReadNVectors(n);
     Console.WriteLine(i + " : " + picture2.Length);
     
-    randomArray = Enumerable.Range(0, n)
-        .Select(_ => (float?)random.Next(0, 10))
-        .ToArray();
-    result = evaluator.EvaluateBatch(randomArray, n);
-    
     if (i == 468)
     {
         Console.WriteLine(picture2[95] != null);
         PrintPicture(picture2[95]);
         Console.WriteLine(picture2[96] == null);
-        int index = 0;
-        foreach (var member in result)
-        {
-            Console.WriteLine(index + ":" + member);
-            index++;
-        }
-        Console.WriteLine(result.Length);
     }
     
 
