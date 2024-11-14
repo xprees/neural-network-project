@@ -27,7 +27,7 @@ namespace DataLoading
             {
                 throw new ApplicationException("Reading whole file was specified in constructor");
             }
-            string? line = _streamReader.ReadLine();
+            var line = _streamReader.ReadLine();
             if (line == null)
             {
                 throw new InvalidOperationException("End of file reached or file is empty.");
@@ -49,7 +49,7 @@ namespace DataLoading
                 throw new ApplicationException("Reading whole file was specified in the constructor");
             }
             
-            float[][] nLines = new float[n][];
+            var nLines = new float[n][];
             for (int i = 0; i < n; i++)
             {
                 nLines[i] = ReadOneVector();
@@ -71,7 +71,7 @@ namespace DataLoading
                 throw new ApplicationException("Reading by row was specified in constructor");
             }
 
-            float[][] allLines = ParseLine(_streamReader.ReadToEnd());
+            var allLines = ParseLine(_streamReader.ReadToEnd());
 
             return allLines;
         }
