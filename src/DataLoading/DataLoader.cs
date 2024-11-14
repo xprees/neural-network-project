@@ -52,10 +52,6 @@ namespace DataLoading
             float[][] nLines = new float[n][];
             for (int i = 0; i < n; i++)
             {
-                if (_streamReader.Peek() < 0)
-                {
-                    return nLines;
-                }
                 nLines[i] = ReadOneVector();
             }
             

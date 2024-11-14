@@ -57,7 +57,7 @@ loader.Dispose();
 
 
 var loader2 = new DataLoader(dataFilePath, true);
-float[]?[] picture2;
+float[][] picture2;
 
 
 
@@ -68,7 +68,8 @@ int n = 128;
 picture2 = loader2.ReadNVectors(n);
 Console.WriteLine(0 + " : " + picture2.Length);
 // Use of Preprocessing
-picture2 = Preprocessing.NormalizeByDivision(picture2);
+Preprocessing preprocessing = new Preprocessing();
+picture2 = preprocessing.NormalizeByDivision(picture2);
 
 
 
@@ -80,8 +81,11 @@ for (int i = 1; i < 469; i++)
     if (i == 468)
     {
         Console.WriteLine(picture2[95] != null);
+        
         PrintPicture(picture2[95]);
-        Console.WriteLine(picture2[96] == null);
+        picture2 = preprocessing.NormalizeByDivision(picture2);
+        PrintPicture(picture2[95]);
+        Console.WriteLine(picture2[96].Length == 0);
     }
     
 
