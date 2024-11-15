@@ -1,17 +1,16 @@
 #!/bin/bash
 ## change this file to your needs
-
-echo "Adding some modules"
-
-# module add gcc-10.2
-
+echo "checking dotnet version"
+dotnet --version
 
 echo "#################"
 echo "    COMPILING    "
 echo "#################"
 
-## dont forget to use compiler optimizations (e.g. -O3 or -Ofast)
-# g++ -Wall -std=c++17 -O3 src/main.cpp src/file2.cpp -o network
+
+## compile the code
+dotnet publish src/NNProject/NNProject.csproj --sc -c Release -o ./build
+chmod u+x ./build/NNProject
 
 
 echo "#################"
@@ -22,3 +21,6 @@ echo "#################"
 ## https://www.fi.muni.cz/tech/unix/computation.html.en
 ## especially if you are using multiple cores
 # nice -n 19 ./network
+
+
+nice -n 19 ./build/NNProject
