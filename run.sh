@@ -8,7 +8,7 @@ echo "    COMPILING    "
 echo "#################"
 
 
-## compile the code
+## compile the code -> dotnet native AOT compilation
 dotnet publish src/NNProject/NNProject.csproj --sc -c Release -o ./build
 chmod u+x ./build/NNProject
 
