@@ -57,7 +57,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     {
         for (var epoch = 0; epoch < maxEpochs; epoch++)
         {
-            Layers.ForEach(l => l.ResetGradients());
+            Layers.ForEach(l => l.ResetStateBeforeEpochRun());
 
             var miniBatch = ChooseMiniBatch(inputs, expectedResults, epoch, miniBatchSize)
                 .ToArray();

@@ -24,13 +24,6 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         }
     }
 
-    public void ResetGradients()
-    {
-        for (var i = 0; i < Neurons.Length; i++)
-        {
-            Neurons[i] = Neurons[i] with { Gradient = 0 };
-        }
-    }
 
     public void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize)
     {

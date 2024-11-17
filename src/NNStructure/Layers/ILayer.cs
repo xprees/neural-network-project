@@ -20,8 +20,12 @@ public interface ILayer
     /// Initializes all weights in the Layer using initializer
     void InitializeWeights(IWeightsInitializer initializer);
 
-    /// Resets the gradients of Neurons in the layer
-    void ResetGradients();
+    /// Resets the inner state of the layer
+    /// <remarks>Not mandatory, but you can use to add custom logic</remarks>
+    void ResetStateBeforeEpochRun()
+    {
+        // Optional 
+    }
 
     /// Apply all neuron gradients to the weights of the layer
     void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize);
