@@ -21,24 +21,28 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     }
 
     /// Does the forward propagation for the input vector and returns prediction vector 
-    public (float[] prediction, float[][] layerInputs) ForwardPropagate(float[] input)
+    public (float[] prediction, float[][] layerInputs, float[][] layersInnerPotentials) ForwardPropagate(float[] input)
     {
         CheckInputDimensionMatchesFirstLayerOrThrow(input);
 
         var layerInputs = new float[Layers.Count][];
+        var layersInnerPotentials = new float[Layers.Count][];
         var output = input;
         for (var i = 0; i < Layers.Count; i++)
         {
             var layer = Layers[i];
 
             layerInputs[i] = output;
-            output = layer.DoForwardPass(output);
+            var (layerOutput, innerPotentials) = layer.DoForwardPass(output);
+            output = layerOutput;
+            layersInnerPotentials[i] = innerPotentials;
         }
 
-        return (output, layerInputs);
+        return (output, layerInputs, layersInnerPotentials);
     }
 
-    public float[][,] BackPropagate(float[] predictedOutput, float[] expectedOutput, float[][] layerInputs)
+    public float[][,] BackPropagate(float[] predictedOutput,
+        float[] expectedOutput, float[][] layerInputs, float[][] layersInnerPotentials)
     {
         var lossGradient = lossFunction.CalculateGradient(predictedOutput, expectedOutput);
         var batchGradients = new float[Layers.Count][,];
@@ -46,7 +50,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         for (var i = Layers.Count - 1; i >= 0; i--)
         {
             var layer = Layers[i];
-            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], ref batchGradients[i]);
+            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], layersInnerPotentials[i], ref batchGradients[i]);
         }
 
         return batchGradients;
@@ -67,9 +71,10 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
             for (var k = 0; k < miniBatch.Length; k++)
             {
                 var (trainingExample, expectedResult) = miniBatch[k];
-                var (predictedOutput, layerInputs) = ForwardPropagate(trainingExample);
+                var (predictedOutput, layerInputs, layersInnerPotentials) = ForwardPropagate(trainingExample);
 
-                var kthBatchGradients = BackPropagate(predictedOutput, expectedResult, layerInputs);
+                var kthBatchGradients =
+                    BackPropagate(predictedOutput, expectedResult, layerInputs, layersInnerPotentials);
                 if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
                 {
                     throw new InvalidOperationException("Failed to add gradients to the dictionary.");

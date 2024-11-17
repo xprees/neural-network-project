@@ -8,7 +8,6 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 {
     public int InputSize { get; } = inputSize;
     public int OutputSize { get; } = outputSize;
-    public Neuron[] Neurons { get; set; } = new Neuron[outputSize];
     public float[,] Weights { get; set; } = new float[outputSize, inputSize + 1]; // +1 for bias on index 0
     public IActivationFunction ActivationFunction { get; } = activationFn;
 
@@ -16,14 +15,12 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
     {
         for (var i = 0; i < OutputSize; i++)
         {
-            Neurons[i] = new Neuron();
             for (var j = 0; j < InputSize + 1; j++)
             {
                 Weights[i, j] = initializer.GetInitialWeight(this);
             }
         }
     }
-
 
     public void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize)
     {
@@ -36,9 +33,10 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         }
     }
 
-    public float[] DoForwardPass(float[] input)
+    public (float[] output, float[] innerPotentials) DoForwardPass(float[] input)
     {
         var output = new float[OutputSize];
+        var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
         for (var i = 0; i < OutputSize; i++)
         {
             var innerPotential = Weights[i, 0]; // Bias
@@ -49,24 +47,23 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
             var activationValue = ActivationFunction.Activate(innerPotential);
             output[i] = activationValue;
-
-            // TODO this won't work in parallel (changing shared state) -> use a temporary array or concurrent dictionary
-            // Is it really necessary to have the neurons?
-            Neurons[i] = Neurons[i] with { InnerPotential = innerPotential };
+            innerPotentials[i] = innerPotential;
         }
 
-        return output;
+        return (output, innerPotentials);
     }
 
-    public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput, ref float[,] layerBatchGradients)
+    public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput,
+        float[] layerInnerPotentials, ref float[,] layerBatchGradients)
     {
-        layerBatchGradients =
-            new float[OutputSize, InputSize + 1]; // Initialize gradients for this layer for this training example
+        // Initialize gradients array for this layer and this training example
+        layerBatchGradients = new float[OutputSize, InputSize + 1];
+
         var inputGradients = new float[InputSize];
 
         for (var i = 0; i < OutputSize; i++)
         {
-            var activationDerivative = ActivationFunction.Derivative(Neurons[i].InnerPotential);
+            var activationDerivative = ActivationFunction.Derivative(layerInnerPotentials[i]);
             var gradient = topLayerGradient[i] * activationDerivative;
 
             layerBatchGradients[i, 0] = gradient; // Bias
