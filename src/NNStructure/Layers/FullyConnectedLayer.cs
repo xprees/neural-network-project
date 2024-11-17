@@ -52,7 +52,7 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
             // TODO this won't work in parallel (changing shared state) -> use a temporary array or concurrent dictionary
             // Is it really necessary to have the neurons?
-            Neurons[i] = Neurons[i] with { InnerPotential = innerPotential, ActivationValue = activationValue };
+            Neurons[i] = Neurons[i] with { InnerPotential = innerPotential };
         }
 
         return output;
