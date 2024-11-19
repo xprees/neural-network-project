@@ -1,6 +1,6 @@
 ﻿namespace DataLoading;
 
-public class Evaluator(float maxError = 0.0001f)
+public class MnistEvaluator(float maxError = 0.0001f)
 {
 
     // Checks if one prediction was correct
