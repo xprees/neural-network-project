@@ -1,14 +1,13 @@
-using System.Data;
 using DataLoading;
 namespace DataLoadingTests;
 
-public class Tests
+public class UnitTestsDataLoader
 {
     public string dataFilePath;
     [SetUp]
     public void Setup()
     {
-        // using this for always finding the file (even from binary I hope)
+        // using this for always finding the file
         string solutionRoot = AppDomain.CurrentDomain.BaseDirectory;
         while (!Directory.Exists(Path.Combine(solutionRoot, "data")))
         {
@@ -59,4 +58,6 @@ public class Tests
             Assert.That(dataLoader.ReadNVectors(128).Length, Is.EqualTo(0));
         }
     }
+    
+    
 }
