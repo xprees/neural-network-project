@@ -4,11 +4,9 @@ public class MnistEvaluator(float maxError = 0.0001f)
 {
 
     // Checks if one prediction was correct
-    public bool EvaluateCompleteResult(float[] predicted, float[] actual)
+    public bool EvaluateCompleteResult(float[] predicted, float actual)
     {
-        return predicted.
-            Select((value, index) => MathF.Abs(value - actual[index]) <= maxError)
-            .All(condition => condition);
+        return Array.IndexOf(predicted, predicted.Max()) == (int) actual;
     }
 
     // Converts vectors like (0.0, 0.1, 0.2, 0.1, 0.98, 0.12, 0.11, 0.11, 0.3, 0.4) to number (4)
@@ -18,21 +16,17 @@ public class MnistEvaluator(float maxError = 0.0001f)
     }
 
     // Returns vector, where true if correct prediction, false otherwise
-    public bool[] EvaluateCompletedResults(float[][] predicted, float[][] actual)
+    public bool[] EvaluateCompletedResults(float[][] predicted, float[] actual)
     {
         return predicted.Select((value, index) => EvaluateCompleteResult(value, actual[index])).ToArray();
     }
 
     // From all predicted and all actual vectors computes evaluation scores
-    public StatisticalMetrics EvaluateModel(float[][] predicted, float[][] actual)
+    public StatisticalMetrics EvaluateModel(float[][] predicted, float[] actual)
     {
-        if (predicted.Length != actual.Length)
-        {
-            throw new ArgumentException("Predicted and actual must have the same length");
-        }
         var statisticalMetrics = new StatisticalMetrics();
         var convertedPredicted = ConvertToClasses(predicted);
-        var convertedActual = ConvertToClasses(actual);
+        var convertedActual = Array.ConvertAll(actual, x => (int) x);
         for (int classIndex = 0; classIndex < 10; classIndex++) // Not the most effective, can be remade later
         {
             int fp = 0;
