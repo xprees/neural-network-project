@@ -66,10 +66,11 @@ namespace DataLoading
         // Parse string by \n and comma to float[][] array
         private static float[][] ParseLine(string line)
         {
+            string newLine = Environment.NewLine; 
             try
             {
                 return line
-                    .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries) // Split by lines
+                    .Split(new[] { $"{newLine}" }, StringSplitOptions.RemoveEmptyEntries) // Split by lines
                     .Select(l => l
                         .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) // Split by commas in each line
                         .Select(number => float.Parse(number, CultureInfo.InvariantCulture)) // Parse each number to float
