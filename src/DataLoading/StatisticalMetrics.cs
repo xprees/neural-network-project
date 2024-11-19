@@ -48,9 +48,9 @@ public struct StatisticalMetrics
         for (int i = 0; i < 10; i++)
         {
             Accuracies[i] = (float)(TruePositives[i] + TrueNegatives[i]) / totalPredictions;
-            Precisions[i] = (float)(TruePositives[i]) / TruePositives[i] + FalsePositives[i];
-            Recalls[i] = (float)(TruePositives[i]) / TruePositives[i] + FalseNegatives[i];
-            F1Scores[i] = 2 * Precisions[i] * Recalls[i] / Precisions[i] + Recalls[i];
+            Precisions[i] = (float)TruePositives[i] / (TruePositives[i] + FalsePositives[i]);
+            Recalls[i] = (float)TruePositives[i] / (TruePositives[i] + FalseNegatives[i]);
+            F1Scores[i] = 2 * (Precisions[i] * Recalls[i]) / (Precisions[i] + Recalls[i]);
         }
 
         Precision = Precisions.Average();
