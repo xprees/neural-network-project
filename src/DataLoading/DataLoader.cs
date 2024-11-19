@@ -66,7 +66,7 @@ namespace DataLoading
         // Parse string by \n and comma to float[][] array
         private static float[][] ParseLine(string line)
         {
-            string newLine = Environment.NewLine; 
+            string newLine = "\n"; 
             try
             {
                 return line
