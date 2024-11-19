@@ -2,20 +2,20 @@
 
 public struct StatisticalMetrics
 {
-    public int[] TruePositives;
-    public int[] TrueNegatives;
-    public int[] FalsePositives;
-    public int[] FalseNegatives;
+    public int[] TruePositives { get;}
+    public int[] TrueNegatives { get;}
+    public int[] FalsePositives { get;}
+    public int[] FalseNegatives { get;}
 
-    public float[] Precisions;
-    public float[] Accuracies;
-    public float[] Recalls;
-    public float[] F1Scores;
+    public float[] Precisions { get;}
+    public float[] Accuracies { get;}
+    public float[] Recalls { get;}
+    public float[] F1Scores { get;}
 
-    public float Precision;
-    public float Accuracy;
-    public float Recall;
-    public float F1Score;
+    public float Precision { get; set; }
+    public float Accuracy { get; set; }
+    public float Recall { get; set; }
+    public float F1Score { get; set; }
 
     public StatisticalMetrics()
     {
@@ -36,13 +36,16 @@ public struct StatisticalMetrics
     }
     
 
-    public void FillMetrics(int classIndex, int tp, int tn, int fp, int fn)
+    public void FillMetric(int classIndex, int tp, int tn, int fp, int fn)
     {
         TruePositives[classIndex] = tp;
         TrueNegatives[classIndex] = tn;
         FalseNegatives[classIndex] = fn;
         FalsePositives[classIndex] = fp;
+    }
 
+    public void ComputeMetrics()
+    {
         int totalPredictions = TruePositives[0] + TrueNegatives[0] + FalsePositives[0] + FalseNegatives[0];
 
         for (int i = 0; i < 10; i++)

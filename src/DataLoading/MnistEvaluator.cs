@@ -46,23 +46,28 @@ public class MnistEvaluator(float maxError = 0.0001f)
                 if (convertedActual[arrayIndex] == classIndex && convertedPredicted[arrayIndex] == classIndex)
                 {
                     tp++;
-                }  else if (convertedActual[arrayIndex] == classIndex && convertedPredicted[arrayIndex] != classIndex)
+                    continue;
+                }
+                if (convertedActual[arrayIndex] == classIndex && convertedPredicted[arrayIndex] != classIndex)
                 {
                     fn++;
-                } else if (convertedActual[arrayIndex] != classIndex && convertedPredicted[arrayIndex] == classIndex)
+                    continue;
+                }
+                if (convertedActual[arrayIndex] != classIndex && convertedPredicted[arrayIndex] == classIndex)
                 {
                     fp++;
-                }
-                else
-                {
-                    tn++;
+                    continue;
                 }
 
+                tn++;
+                
+
             }
-            statisticalMetrics.FillMetrics(classIndex, tp, tn, fp, fn);
+            statisticalMetrics.FillMetric(classIndex, tp, tn, fp, fn);
             
         }
 
+        statisticalMetrics.ComputeMetrics();
         return statisticalMetrics;
     }
 

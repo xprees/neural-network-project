@@ -6,14 +6,12 @@ namespace DataLoading
     public class DataLoader : IDisposable
     {
         private readonly StreamReader _streamReader;
-
-        private readonly bool _byRow;
+        
         
         // Creates DataLoader object
         public DataLoader(string path, bool byRow = true)
         {
             _streamReader = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read));
-            _byRow = byRow;
         }
         
         // Reads one line of specified CSV file
@@ -23,17 +21,13 @@ namespace DataLoading
             {
                 return [];
             }
-            if (!_byRow)
-            {
-                throw new ApplicationException("Reading whole file was specified in constructor");
-            }
             var line = _streamReader.ReadLine();
-            if (line == null)
+            if (line != null)
             {
-                throw new InvalidOperationException("End of file reached or file is empty.");
+                return ParseLine(line)[0];
             }
 
-            return ParseLine(line)[0];
+            return [];
         }
         
 
@@ -43,10 +37,6 @@ namespace DataLoading
             if (_streamReader.Peek() < 0)
             {
                 return [];
-            }
-            if (!_byRow)
-            {
-                throw new ApplicationException("Reading whole file was specified in the constructor");
             }
             
             var nLines = new float[n][];
@@ -66,10 +56,7 @@ namespace DataLoading
             {
                 return [];
             }
-            if (_byRow)
-            {
-                throw new ApplicationException("Reading by row was specified in constructor");
-            }
+
 
             var allLines = ParseLine(_streamReader.ReadToEnd());
 
