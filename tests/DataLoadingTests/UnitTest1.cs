@@ -24,8 +24,39 @@ public class Tests
 
         using (DataLoader dataLoader = new DataLoader(dataFilePath))
         {
-            Assert.IsTrue(dataLoader.ReadAllVectors().Length == 60000);
+            Assert.That(dataLoader.ReadAllVectors().Length, Is.EqualTo(60000));
         }
 
+    }
+
+    [Test]
+    public void TestReadOneVector()
+    {
+        using (DataLoader dataLoader = new DataLoader(dataFilePath))
+        {
+            for (int i = 0; i < 60000; i++)
+            {
+                Assert.Greater(dataLoader.ReadOneVector().Length, 0);
+            }
+            Assert.That(dataLoader.ReadOneVector().Length, Is.EqualTo(0));
+        }
+    }
+    
+    [Test]
+    public void TestReadNVectors()
+    {
+        using (DataLoader dataLoader = new DataLoader(dataFilePath))
+        {
+            for (int i = 0; i < 468; i++)
+            {
+                Assert.That(dataLoader.ReadNVectors(128).Length, Is.EqualTo(128));
+            }
+
+            float[][] dataLast = dataLoader.ReadNVectors(128);
+            Assert.That(dataLast.Length, Is.EqualTo(128));
+            Assert.That(dataLast[95].Length, Is.EqualTo(784));
+            Assert.That(dataLast[96].Length, Is.EqualTo(0));
+            Assert.That(dataLoader.ReadNVectors(128).Length, Is.EqualTo(0));
+        }
     }
 }
