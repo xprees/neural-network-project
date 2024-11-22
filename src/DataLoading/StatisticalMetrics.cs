@@ -1,40 +1,21 @@
 ﻿namespace DataLoading;
 
-public struct StatisticalMetrics
+public struct StatisticalMetrics(int classesCount = 10)
 {
-    public int[] TruePositives { get;}
-    public int[] TrueNegatives { get;}
-    public int[] FalsePositives { get;}
-    public int[] FalseNegatives { get;}
+    public int[] TruePositives { get; } = new int[classesCount];
+    public int[] TrueNegatives { get; } = new int[classesCount];
+    public int[] FalsePositives { get; } = new int[classesCount];
+    public int[] FalseNegatives { get; } = new int[classesCount];
 
-    public float[] Precisions { get;}
-    public float[] Accuracies { get;}
-    public float[] Recalls { get;}
-    public float[] F1Scores { get;}
+    public float[] Precisions { get; } = new float[classesCount];
+    public float[] Accuracies { get; } = new float[classesCount];
+    public float[] Recalls { get; } = new float[classesCount];
+    public float[] F1Scores { get; } = new float[classesCount];
 
-    public float Precision { get; set; }
-    public float Accuracy { get; set; }
-    public float Recall { get; set; }
-    public float F1Score { get; set; }
-
-    public StatisticalMetrics()
-    {
-        TruePositives = new int[10];
-        TrueNegatives = new int[10];
-        FalsePositives = new int[10];
-        FalseNegatives = new int[10];
-        
-        Precisions = new float[10];
-        Accuracies = new float[10];
-        Recalls = new float[10];
-        F1Scores = new float[10];
-
-        Precision = 0;
-        Accuracy = 0;
-        Recall = 0;
-        F1Score = 0;
-    }
-    
+    public float Precision { get; set; } = 0f;
+    public float Accuracy { get; set; } = 0f;
+    public float Recall { get; set; } = 0f;
+    public float F1Score { get; set; } = 0f;
 
     public void FillMetric(int classIndex, int tp, int tn, int fp, int fn)
     {
@@ -46,9 +27,9 @@ public struct StatisticalMetrics
 
     public void ComputeMetrics()
     {
-        int totalPredictions = TruePositives[0] + TrueNegatives[0] + FalsePositives[0] + FalseNegatives[0];
+        var totalPredictions = TruePositives[0] + TrueNegatives[0] + FalsePositives[0] + FalseNegatives[0];
 
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             Accuracies[i] = (float)(TruePositives[i] + TrueNegatives[i]) / totalPredictions;
             Precisions[i] = (float)TruePositives[i] / (TruePositives[i] + FalsePositives[i]);
