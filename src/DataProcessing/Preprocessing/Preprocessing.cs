@@ -9,6 +9,7 @@ public class Preprocessing
             .ToArray();
     }
 
+    /// Input is intended for the training data and output for the labels  
     public (float[][] trainInput, float[][] expectedOutput) ShuffleData(float[][] input, float[][] output,
         int seed = 42)
     {
