@@ -3,6 +3,7 @@ using DataProcessing.Evaluation;
 using DataProcessing.Loading;
 using DataProcessing.Preprocessing;
 using NNProject;
+using NNProject.Exports;
 using NNProject.Performance;
 using NNStructure;
 using NNStructure.ActivationFunctions;
@@ -89,6 +90,11 @@ var accuracy = accuracyEvaluator.Evaluate(result, testLabelsOneHot.ToArray());
 var evalTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"Accuracy: {accuracy:F}");
 Console.WriteLine($"[DONE] Evaluating accuracy... Time: {evalTime} ms");
+
+var decodedResult = oneHotEncoder.Decode(result);
+await ResultExporter.ExportResultsAsCsvAsync("./results.csv", decodedResult);
+
+Console.WriteLine("Results exported to results.csv");
 
 return;
 
