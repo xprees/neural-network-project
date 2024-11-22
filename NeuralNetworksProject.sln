@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NNProjectTests", "tests\NNP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLoading", "src\DataLoading\DataLoading.csproj", "{8789C7C8-9B14-42EA-BA75-3B89BC8175EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLoadingTests", "tests\DataLoadingTests\DataLoadingTests.csproj", "{29085515-F84B-42D3-A33D-1B11C28D1071}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLoading.Tests", "tests\DataLoading.Tests\DataLoading.Tests.csproj", "{29085515-F84B-42D3-A33D-1B11C28D1071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

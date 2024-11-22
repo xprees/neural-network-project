@@ -1,16 +1,17 @@
 ﻿namespace DataLoading;
 
-public struct StatisticalMetrics(int classesCount = 10)
+public struct StatisticalMetrics()
 {
-    public int[] TruePositives { get; } = new int[classesCount];
-    public int[] TrueNegatives { get; } = new int[classesCount];
-    public int[] FalsePositives { get; } = new int[classesCount];
-    public int[] FalseNegatives { get; } = new int[classesCount];
+    private const int ClassesCount = 10;
+    public int[] TruePositives { get; } = new int[ClassesCount];
+    public int[] TrueNegatives { get; } = new int[ClassesCount];
+    public int[] FalsePositives { get; } = new int[ClassesCount];
+    public int[] FalseNegatives { get; } = new int[ClassesCount];
 
-    public float[] Precisions { get; } = new float[classesCount];
-    public float[] Accuracies { get; } = new float[classesCount];
-    public float[] Recalls { get; } = new float[classesCount];
-    public float[] F1Scores { get; } = new float[classesCount];
+    public float[] Precisions { get; } = new float[ClassesCount];
+    public float[] Accuracies { get; } = new float[ClassesCount];
+    public float[] Recalls { get; } = new float[ClassesCount];
+    public float[] F1Scores { get; } = new float[ClassesCount];
 
     public float Precision { get; set; } = 0f;
     public float Accuracy { get; set; } = 0f;
