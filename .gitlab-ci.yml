@@ -5,6 +5,8 @@ stages:
 
 
 test_solution:
+  rules:
+    - when: on_success
   tags:
     - stratus
   stage: test
@@ -20,8 +22,6 @@ test_solution:
     reports:
       junit:
         - ./**/*test-result.xml
-  environment:
-    name: Development
 
 
 build:
