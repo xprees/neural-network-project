@@ -2,6 +2,8 @@ Václav Bílý - 492865
 
 ## PV021 project -- Deep Learning from Scratch
 
+Project is implemented in .NET 8 and supports native AOT compilation.
+
 ### DEADLINE
 
 Sunday 8. 12. 2024 23:59 (December 8th)
