@@ -50,7 +50,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         for (var i = Layers.Count - 1; i >= 0; i--)
         {
             var layer = Layers[i];
-            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], layersInnerPotentials[i], ref batchGradients[i]);
+            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], layersInnerPotentials[i],
+                ref batchGradients[i]);
         }
 
         return batchGradients;
@@ -89,6 +90,18 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
             }
         }
+    }
+
+    /// Does the forward propagation for the input vectors and returns prediction vectors
+    public float[][] Test(float[][] inputs)
+    {
+        var predictions = new float[inputs.Length][];
+        for (var i = 0; i < inputs.Length; i++)
+        {
+            predictions[i] = ForwardPropagate(inputs[i]).prediction;
+        }
+
+        return predictions;
     }
 
     private float[][,] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][,]> gradientsByTrainingExample)
