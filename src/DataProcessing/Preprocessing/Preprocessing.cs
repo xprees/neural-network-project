@@ -5,8 +5,6 @@ public class Preprocessing
     public IEnumerable<float[]> NormalizeByDivision(float[][] input)
     {
         return input
-            .AsParallel()
-            .AsOrdered()
             .Select(subArray => subArray.Select(element => element / 255).ToArray());
     }
 
