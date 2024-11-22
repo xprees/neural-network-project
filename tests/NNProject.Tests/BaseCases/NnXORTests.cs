@@ -1,3 +1,4 @@
+using DataProcessing.Evaluation;
 using FluentAssertions;
 using NNStructure;
 using NNStructure.ActivationFunctions;
@@ -11,7 +12,11 @@ namespace NNProjectTests.BaseCases;
 [TestFixture]
 public class NnXorTests
 {
+    private const float ClassificationTolerance = 0.15f;
+    private const float ExpectedAccuracy = 0.999f;
+
     private NeuralNetwork _nn;
+    private AccuracyEvaluator _accuracyEvaluator;
 
     #region Data
 
@@ -36,6 +41,7 @@ public class NnXorTests
     [SetUp]
     public void Setup()
     {
+        _accuracyEvaluator = new AccuracyEvaluator(ClassificationTolerance);
         _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(1));
         _nn.AddLayer(new FullyConnectedLayer(2, 2, new Tanh()));
         _nn.AddLayer(new FullyConnectedLayer(2, 1, new Tanh()));
@@ -48,22 +54,10 @@ public class NnXorTests
 
         _nn.Train(TestInputs, ExpectedResults, maxEpochs, miniBatchSize);
 
-        const float precision = 0.15f;
+        var predicted = _nn.Test(TestInputs);
+        var accuracy = _accuracyEvaluator.Evaluate(predicted, ExpectedResults);
 
-        // 1, 1 = 0
-        var result = _nn.ForwardPropagate([1, 1]).prediction.First();
-        result.Should().BeApproximately(0, precision, $"For [1, 1] expected 0, got {result}");
-
-        // 1, 0 = 1
-        result = _nn.ForwardPropagate([1, 0]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [1, 0] expected 1, got {result}");
-
-        // 0, 0 = 0
-        result = _nn.ForwardPropagate([0, 0]).prediction.First();
-        result.Should().BeApproximately(0, precision, $"For [0, 0] expected 0, got {result}");
-
-        // 0, 1 = 1
-        result = _nn.ForwardPropagate([0, 1]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [0, 1] expected 1, got {result}");
+        accuracy.Should().BeGreaterThan(ExpectedAccuracy,
+            $"XOR problem should be solved with higher accuracy than {ExpectedAccuracy} but was {accuracy}");
     }
 }
