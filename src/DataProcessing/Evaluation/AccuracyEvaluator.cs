@@ -10,6 +10,7 @@ public class AccuracyEvaluator(float classificationTolerance = 0.01f) : IEvaluat
         }
 
         var positive = 0;
+        var total = 0;
         for (var i = 0; i < predicted.Length; i++)
         {
             if (predicted[i].Length != expected[i].Length)
@@ -23,9 +24,11 @@ public class AccuracyEvaluator(float classificationTolerance = 0.01f) : IEvaluat
                 {
                     positive++;
                 }
+
+                total++;
             }
         }
 
-        return (float)positive / predicted.Length;
+        return (float)positive / total;
     }
 }
