@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 ## change this file to your needs
 echo "checking dotnet version"
 dotnet --version
