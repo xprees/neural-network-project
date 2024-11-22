@@ -27,4 +27,23 @@ public class OneHotEncoder<TLabel> where TLabel : notnull
         oneHotVector[index] = 1;
         return oneHotVector;
     }
+
+    public IEnumerable<TLabel> Decode(IEnumerable<float[]> results) =>
+        results
+            .AsParallel()
+            .AsOrdered()
+            .Select(Decode);
+
+    public TLabel Decode(float[] result)
+    {
+        if (result.Length != _categoriesMap)
+        {
+            throw new ArgumentException("The length of the result vector does not match the number of categories.");
+        }
+
+        var maxIndex = Array.IndexOf(result, result.Max());
+        return _categoryMap
+            .FirstOrDefault(x => x.Value == maxIndex)
+            .Key;
+    }
 }
