@@ -20,7 +20,7 @@ public class PreprocessingTests
             [1.0f, 0.9960784314f, 0.9529411765f, 0.9882352941f, 0.9843137255f, 0.0f]
         ];
 
-        data = preprocessing.NormalizeByDivision(data);
+        data = preprocessing.NormalizeByDivision(data).ToArray();
 
         for (var i = 0; i < data.Length; i++)
         {

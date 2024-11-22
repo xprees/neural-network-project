@@ -2,11 +2,12 @@
 
 public class Preprocessing
 {
-    public float[][] NormalizeByDivision(float[][] input)
+    public IEnumerable<float[]> NormalizeByDivision(float[][] input)
     {
         return input
-            .Select(subArray => subArray.Select(element => element / 255).ToArray())
-            .ToArray();
+            .AsParallel()
+            .AsOrdered()
+            .Select(subArray => subArray.Select(element => element / 255).ToArray());
     }
 
     /// Input is intended for the training data and output for the labels  
