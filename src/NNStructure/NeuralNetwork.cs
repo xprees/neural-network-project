@@ -69,18 +69,19 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
             var gradientsByTrainingExample =
                 new ConcurrentDictionary<int, float[][,]>(); // Gradients for each training example by k their index
 
-            for (var k = 0; k < miniBatch.Length; k++)
-            {
-                var (trainingExample, expectedResult) = miniBatch[k];
-                var (predictedOutput, layerInputs, layersInnerPotentials) = ForwardPropagate(trainingExample);
-
-                var kthBatchGradients =
-                    BackPropagate(predictedOutput, expectedResult, layerInputs, layersInnerPotentials);
-                if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
+            Parallel.For(0, miniBatch.Length, k =>
                 {
-                    throw new InvalidOperationException("Failed to add gradients to the dictionary.");
+                    var (trainingExample, expectedResult) = miniBatch[k];
+                    var (predictedOutput, layerInputs, layersInnerPotentials) = ForwardPropagate(trainingExample);
+
+                    var kthBatchGradients =
+                        BackPropagate(predictedOutput, expectedResult, layerInputs, layersInnerPotentials);
+                    if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
+                    {
+                        throw new InvalidOperationException("Failed to add gradients to the dictionary.");
+                    }
                 }
-            }
+            );
 
             var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample);
             for (var i = 0; i < Layers.Count; i++)
