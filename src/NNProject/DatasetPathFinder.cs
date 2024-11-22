@@ -10,13 +10,40 @@ public static class DatasetPathFinder
     public const string TestVectors = "fashion_mnist_test_vectors.csv";
     public const string TestLabels = "fashion_mnist_test_labels.csv";
 
-    public static string? GetTestVectorsPath()
+    public static string? GetTrainVectorsPath()
     {
         if (_dataFolderPath is not null) return Path.Combine(_dataFolderPath, TrainVectors);
 
         if (!TryFindDataSetFolderPathAndCacheIt()) return null;
 
         return Path.Combine(_dataFolderPath!, TrainVectors);
+    }
+
+    public static string? GetTrainLabelsPath()
+    {
+        if (_dataFolderPath is not null) return Path.Combine(_dataFolderPath, TrainLabels);
+
+        if (!TryFindDataSetFolderPathAndCacheIt()) return null;
+
+        return Path.Combine(_dataFolderPath!, TrainLabels);
+    }
+
+    public static string? GetTestVectorsPath()
+    {
+        if (_dataFolderPath is not null) return Path.Combine(_dataFolderPath, TestVectors);
+
+        if (!TryFindDataSetFolderPathAndCacheIt()) return null;
+
+        return Path.Combine(_dataFolderPath!, TestVectors);
+    }
+
+    public static string? GetTestLabelsPath()
+    {
+        if (_dataFolderPath is not null) return Path.Combine(_dataFolderPath, TestLabels);
+
+        if (!TryFindDataSetFolderPathAndCacheIt()) return null;
+
+        return Path.Combine(_dataFolderPath!, TestLabels);
     }
 
     private static bool TryFindDataSetFolderPathAndCacheIt()
