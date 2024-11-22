@@ -2,7 +2,7 @@
 
 namespace DataProcessing.Evaluation;
 
-public class MnistEvaluator(float maxError = 0.0001f)
+public class MnistEvaluator
 {
     /// Checks if one prediction was correct
     public bool EvaluateCompleteResult(float[] predicted, int actualIndex) =>
