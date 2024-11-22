@@ -8,8 +8,4 @@
         <RootNamespace>DataProcessing</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Preprocessing\" />
-    </ItemGroup>
-
 </Project>

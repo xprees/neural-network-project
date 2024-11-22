@@ -1,4 +1,4 @@
-﻿namespace DataProcessing;
+﻿namespace DataProcessing.Preprocessing;
 
 public class Preprocessing
 {
@@ -8,5 +8,4 @@ public class Preprocessing
             .Select(subArray => subArray.Select(element => element / 255).ToArray())
             .ToArray();
     }
-
 }
