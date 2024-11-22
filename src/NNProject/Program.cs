@@ -3,6 +3,7 @@ using DataProcessing.Evaluation;
 using DataProcessing.Loading;
 using DataProcessing.Preprocessing;
 using NNProject;
+using NNProject.Performance;
 using NNStructure;
 using NNStructure.ActivationFunctions;
 using NNStructure.Initialization;
@@ -10,7 +11,12 @@ using NNStructure.Layers;
 using NNStructure.LossFunctions;
 using NNStructure.Optimizers;
 
-// Load the data
+using var stopwatch = new DisposableStopwatch();
+
+// Load the training data
+Console.WriteLine("Loading training data...");
+stopwatch.Start();
+
 var (trainDataPath, trainLabelsPath, testDataPath, testLabelsPath) = GetDatasetFilesPaths();
 
 using var trainDataLoader = new DataLoader(trainDataPath);
@@ -19,7 +25,12 @@ var trainData = trainDataLoader.ReadAllVectors();
 using var trainLabelsLoader = new DataLoader(trainLabelsPath);
 var trainLabels = trainLabelsLoader.ReadAllVectors();
 
+var trainDataTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"[DONE] Loading training data... Time: {trainDataTime} ms");
+
 // Preprocess the data
+Console.WriteLine("Preprocessing data...");
+stopwatch.Restart();
 
 var preprocessing = new Preprocessing();
 var normalizedData = preprocessing.NormalizeByDivision(trainData);
@@ -28,7 +39,11 @@ var oneHotEncoder = new OneHotEncoder<int>(Enumerable.Range(0, 10));
 
 var trainLabelsOneHot = oneHotEncoder.Encode(trainLabels.Select(x => (int)x.First()));
 
-var (trainInput, trainingExpectedOutput) = preprocessing.ShuffleData(normalizedData, trainLabelsOneHot.ToArray());
+var (trainInput, trainingExpectedOutput) =
+    preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray());
+
+var preprocessingTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
 var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.5f));
@@ -38,20 +53,43 @@ nn.AddLayer(new FullyConnectedLayer(64, 10, new Relu())); // TODO: Change to Sof
 
 nn.InitializeWeights();
 
-nn.Train(trainInput, trainingExpectedOutput, 10, 256);
+// Train the neural network
+Console.WriteLine("Training neural network...");
+stopwatch.Restart();
+
+nn.Train(trainInput, trainingExpectedOutput, 10, 64);
+
+var trainingTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
+
+Console.WriteLine("Loading test data...");
+stopwatch.Restart();
 
 using var testDataLoader = new DataLoader(testDataPath);
 var testData = testDataLoader.ReadAllVectors();
 
 using var testLabelsLoader = new DataLoader(testLabelsPath);
 var testLabels = testLabelsLoader.ReadAllVectors();
+var testLabelsOneHot = oneHotEncoder.Encode(testLabels.Select(x => (int)x.First()));
+
+var testDataTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"[DONE] Loading test data... Time: {testDataTime} ms");
+
+Console.WriteLine("Testing neural network...");
 
 var result = nn.Test(testData);
 
-var accuracyEvaluator = new AccuracyEvaluator();
-var accuracy = accuracyEvaluator.Evaluate(result, testLabels);
+var testingTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"[DONE] Testing neural network... Time: {testingTime} ms");
 
-Console.WriteLine($"Accuracy: {accuracy: 2f}");
+Console.WriteLine("Evaluating accuracy...");
+var accuracyEvaluator = new AccuracyEvaluator();
+var accuracy = accuracyEvaluator.Evaluate(result, testLabelsOneHot.ToArray());
+
+var evalTime = stopwatch.ElapsedMilliseconds;
+Console.WriteLine($"Accuracy: {accuracy:F}");
+Console.WriteLine($"[DONE] Evaluating accuracy... Time: {evalTime} ms");
+
 return;
 
 // Args: trainDataPath trainLabelsPath testDataPath testLabelsPath
