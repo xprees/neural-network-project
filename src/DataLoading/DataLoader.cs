@@ -60,14 +60,12 @@ namespace DataLoading
         /// Parse string by \n and comma to float[][] array
         private static float[][] ParseLine(string line)
         {
-            const string newLine = "\n";
-
             try
             {
                 return line
-                    .Split([$"{newLine}"], StringSplitOptions.RemoveEmptyEntries) // Split by lines
+                    .Split("\n", StringSplitOptions.RemoveEmptyEntries) // Split by lines
                     .Select(l => l
-                        .Split([','], StringSplitOptions.RemoveEmptyEntries) // Split by commas in each line
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries) // Split by commas in each line
                         .Select(number =>
                             float.Parse(number, CultureInfo.InvariantCulture)) // Parse each number to float
                         .ToArray())

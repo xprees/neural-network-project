@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataLoading\DataLoading.csproj" />
     <ProjectReference Include="..\NNStructure\NNStructure.csproj" />
   </ItemGroup>
 
