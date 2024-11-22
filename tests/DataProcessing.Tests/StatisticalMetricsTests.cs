@@ -1,4 +1,4 @@
-﻿using DataLoading;
+﻿using DataProcessing.Evaluation.Metrics;
 using FluentAssertions;
 
 namespace DataLoadingTests;

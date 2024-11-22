@@ -1,4 +1,6 @@
-﻿namespace DataLoading;
+﻿using DataProcessing.Evaluation.Metrics;
+
+namespace DataProcessing.Evaluation;
 
 public class MnistEvaluator(float maxError = 0.0001f)
 {

@@ -1,4 +1,4 @@
-﻿using DataLoading;
+﻿using DataProcessing;
 using FluentAssertions;
 
 namespace DataLoadingTests;

@@ -1,4 +1,4 @@
-﻿namespace DataLoading;
+﻿namespace DataProcessing.Evaluation.Metrics;
 
 public struct StatisticalMetrics()
 {

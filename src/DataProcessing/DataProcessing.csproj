@@ -5,6 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAotCompatible>true</IsAotCompatible>
+        <RootNamespace>DataProcessing</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Preprocessing\" />
+    </ItemGroup>
 
 </Project>

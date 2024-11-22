@@ -1,4 +1,4 @@
-﻿namespace DataLoading;
+﻿namespace DataProcessing;
 
 public class Preprocessing
 {

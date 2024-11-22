@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace DataLoading
+namespace DataProcessing.Loading
 {
     public class DataLoader(string path) : IDisposable
     {
