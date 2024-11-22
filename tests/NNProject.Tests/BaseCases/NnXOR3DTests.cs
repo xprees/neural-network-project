@@ -1,3 +1,4 @@
+using DataProcessing.Evaluation;
 using FluentAssertions;
 using NNStructure;
 using NNStructure.ActivationFunctions;
@@ -11,7 +12,11 @@ namespace NNProjectTests.BaseCases;
 [TestFixture]
 public class NnXor3DTests
 {
+    private const float ClassificationTolerance = 0.15f;
+    private const float ExpectedAccuracy = 0.999f;
+
     private NeuralNetwork _nn;
+    private AccuracyEvaluator _accuracyEvaluator;
 
     #region Data
 
@@ -44,6 +49,7 @@ public class NnXor3DTests
     [SetUp]
     public void Setup()
     {
+        _accuracyEvaluator = new AccuracyEvaluator(ClassificationTolerance);
         _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.5f));
         _nn.AddLayer(new FullyConnectedLayer(3, 3, new Tanh()));
         _nn.AddLayer(new FullyConnectedLayer(3, 1, new Tanh()));
@@ -56,38 +62,10 @@ public class NnXor3DTests
 
         _nn.Train(TestInputs, ExpectedResults, maxEpochs, miniBatchSize);
 
-        const float precision = 0.15f;
+        var predicted = _nn.Test(TestInputs);
+        var accuracy = new AccuracyEvaluator(ClassificationTolerance).Evaluate(predicted, ExpectedResults);
 
-        // 1, 1, 1 = 0
-        var result = _nn.ForwardPropagate([1, 1, 1]).prediction.First();
-        result.Should().BeApproximately(0, precision, $"For [1, 1, 1] expected 0, got {result}");
-
-        // 1, 1, 0 = 1
-        result = _nn.ForwardPropagate([1, 1, 0]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [1, 1, 0] expected 1, got {result}");
-
-        // 1, 0, 1 = 1
-        result = _nn.ForwardPropagate([1, 0, 1]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [1, 0, 1] expected 1, got {result}");
-
-        // 0, 1, 1 = 1
-        result = _nn.ForwardPropagate([0, 1, 1]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [0, 1, 1] expected 1, got {result}");
-
-        // 1, 0, 0 = 1
-        result = _nn.ForwardPropagate([1, 0, 0]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [1, 0, 0] expected 1, got {result}");
-
-        // 0, 1, 0 = 1
-        result = _nn.ForwardPropagate([0, 1, 0]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [0, 1, 0] expected 1, got {result}");
-
-        // 0, 0, 1 = 1
-        result = _nn.ForwardPropagate([0, 0, 1]).prediction.First();
-        result.Should().BeApproximately(1, precision, $"For [0, 0, 1] expected 1, got {result}");
-
-        // 0, 0, 0 = 0
-        result = _nn.ForwardPropagate([0, 0, 0]).prediction.First();
-        result.Should().BeApproximately(0, precision, $"For [0, 0, 0] expected 0, got {result}");
+        accuracy.Should().BeGreaterThan(ExpectedAccuracy,
+            $"The accuracy should be greater than the {ExpectedAccuracy} but was {accuracy}");
     }
 }
