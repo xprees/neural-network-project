@@ -9,28 +9,19 @@ namespace DataProcessing.Loading
         /// Reads one line of specified CSV file
         public float[] ReadOneVector()
         {
-            if (_streamReader.Peek() < 0)
-            {
-                return [];
-            }
+            if (_streamReader.Peek() < 0) return [];
 
             var line = _streamReader.ReadLine();
-            if (line != null)
-            {
-                return ParseLine(line)[0];
-            }
+            if (line == null) return [];
 
-            return [];
+            return ParseLine(line)[0];
         }
 
 
         /// Reads batch of n vectors from file
         public float[][] ReadNVectors(int n)
         {
-            if (_streamReader.Peek() < 0)
-            {
-                return [];
-            }
+            if (_streamReader.Peek() < 0) return [];
 
             var nLines = new float[n][];
             for (var i = 0; i < n; i++)
@@ -45,15 +36,9 @@ namespace DataProcessing.Loading
         /// Reads whole specified CSV file
         public float[][] ReadAllVectors()
         {
-            if (_streamReader.Peek() < 0)
-            {
-                return [];
-            }
+            if (_streamReader.Peek() < 0) return [];
 
-
-            var allLines = ParseLine(_streamReader.ReadToEnd());
-
-            return allLines;
+            return ParseLine(_streamReader.ReadToEnd());
         }
 
         /// Parse string by \n and comma to float[][] array

@@ -1,3 +1,5 @@
+using DataProcessing.Loading;
+using NNProject;
 using NNStructure;
 using NNStructure.ActivationFunctions;
 using NNStructure.Initialization;
@@ -5,6 +7,19 @@ using NNStructure.Layers;
 using NNStructure.LossFunctions;
 using NNStructure.Optimizers;
 
+// Load the data
+string? trainDataPath = null;
+if (args.Length > 0) trainDataPath = args[0];
+
+trainDataPath ??= DatasetPathFinder.GetTestVectorsPath()
+                  ?? throw new ArgumentException("No path provided and no default path found");
+
+using var dataLoader = new DataLoader(trainDataPath);
+
+
+// Preprocess the data
+
+// Create the neural network
 var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.8f));
 nn.AddLayer(new FullyConnectedLayer(2, 2, new Tanh()));
 nn.AddLayer(new FullyConnectedLayer(2, 1, new Tanh()));
