@@ -7,7 +7,7 @@ public static class ResultExporter
         await using var writer = new StreamWriter(filePath);
         foreach (var result in results)
         {
-            await writer.WriteLineAsync($"{result}{Environment.NewLine}");
+            await writer.WriteLineAsync($"{result}");
         }
     }
 }
