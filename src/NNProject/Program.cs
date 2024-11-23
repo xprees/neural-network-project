@@ -13,6 +13,7 @@ using NNStructure.LossFunctions;
 using NNStructure.Optimizers;
 
 using var totalStopwatch = new DisposableStopwatch();
+totalStopwatch.Start();
 using var stopwatch = new DisposableStopwatch();
 
 // Load the training data
@@ -48,7 +49,7 @@ var preprocessingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
-var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.5f));
+var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.2f));
 nn.AddLayer(new FullyConnectedLayer(784, 256, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(256, 64, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(64, 10, new Relu())); // TODO: Change to Softmax
@@ -59,7 +60,7 @@ nn.InitializeWeights();
 Console.WriteLine("Training neural network...");
 stopwatch.Restart();
 
-nn.Train(trainInput, trainingExpectedOutput, 10, 64);
+nn.Train(trainInput, trainingExpectedOutput, 10, 128);
 
 var trainingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
@@ -103,7 +104,7 @@ await ResultExporter.ExportResultsAsCsvAsync("./results.csv", decodedResult);
 Console.WriteLine("Results exported to results.csv");
 
 var totalTime = totalStopwatch.ElapsedMilliseconds;
-Console.WriteLine($"Total time: {totalTime} ms ({totalTime / 1000f * 60:F} min)");
+Console.WriteLine($"Total time: {totalTime} ms ({totalTime / (1000f * 60):F} min)");
 
 return;
 
