@@ -49,7 +49,7 @@ var preprocessingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
-var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.2f));
+var nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(0), new SgdOptimizer(0.2f));
 nn.AddLayer(new FullyConnectedLayer(784, 256, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(256, 64, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(64, 10, new Relu())); // TODO: Change to Softmax
@@ -60,7 +60,7 @@ nn.InitializeWeights();
 Console.WriteLine("Training neural network...");
 stopwatch.Restart();
 
-nn.Train(trainInput, trainingExpectedOutput, 10, 128);
+nn.Train(trainInput, trainingExpectedOutput, 30, 64);
 
 var trainingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
