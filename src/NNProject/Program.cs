@@ -99,7 +99,7 @@ Console.WriteLine($"F1 Score: {stats.F1Score:F}");
 Console.WriteLine($"[DONE] Evaluating accuracy... Time: {evalTime} ms");
 
 var decodedResult = oneHotEncoder.Decode(result);
-await ResultExporter.ExportResultsAsCsvAsync("./results.csv", decodedResult);
+ResultExporter.ExportResultsAsCsv("./results.csv", decodedResult);
 
 Console.WriteLine("Results exported to results.csv");
 
