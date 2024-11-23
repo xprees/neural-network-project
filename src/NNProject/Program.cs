@@ -12,6 +12,7 @@ using NNStructure.Layers;
 using NNStructure.LossFunctions;
 using NNStructure.Optimizers;
 
+using var totalStopwatch = new DisposableStopwatch();
 using var stopwatch = new DisposableStopwatch();
 
 // Load the training data
@@ -70,8 +71,9 @@ using var testDataLoader = new DataLoader(testDataPath);
 var testData = testDataLoader.ReadAllVectors();
 
 using var testLabelsLoader = new DataLoader(testLabelsPath);
-var testLabels = testLabelsLoader.ReadAllVectors();
-var testLabelsOneHot = oneHotEncoder.Encode(testLabels.Select(x => (int)x.First()));
+var testLabels = testLabelsLoader.ReadAllVectors()
+    .Select(l => l.First())
+    .ToArray();
 
 var testDataTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Loading test data... Time: {testDataTime} ms");
@@ -84,17 +86,24 @@ var testingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Testing neural network... Time: {testingTime} ms");
 
 Console.WriteLine("Evaluating accuracy...");
-var accuracyEvaluator = new AccuracyEvaluator();
-var accuracy = accuracyEvaluator.Evaluate(result, testLabelsOneHot.ToArray());
+var evaluator = new MnistEvaluator();
+var stats = evaluator.EvaluateModel(result, testLabels);
 
 var evalTime = stopwatch.ElapsedMilliseconds;
-Console.WriteLine($"Accuracy: {accuracy:F}");
+Console.WriteLine($"Accuracy: {stats.Accuracy:F}");
+Console.WriteLine($"Precision: {stats.Precision:F}");
+Console.WriteLine($"Recall: {stats.Recall:F}");
+Console.WriteLine($"F1 Score: {stats.F1Score:F}");
+
 Console.WriteLine($"[DONE] Evaluating accuracy... Time: {evalTime} ms");
 
 var decodedResult = oneHotEncoder.Decode(result);
 await ResultExporter.ExportResultsAsCsvAsync("./results.csv", decodedResult);
 
 Console.WriteLine("Results exported to results.csv");
+
+var totalTime = totalStopwatch.ElapsedMilliseconds;
+Console.WriteLine($"Total time: {totalTime} ms ({totalTime / 1000f * 60:F} min)");
 
 return;
 
