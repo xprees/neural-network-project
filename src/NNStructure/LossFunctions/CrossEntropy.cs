@@ -6,14 +6,15 @@ namespace NNStructure.CrossEntropy;
 public class CrossEntropy: ILossFunction
 {
     
-    private float ComputeCrossEntropyOnVector(float[] predictedVector, int actual)
+    public float ComputeCrossEntropyOnVector(float[] predictedVector, int actual)
     {
         return - MathF.Log(predictedVector[actual]);
     }
     
     
-    private float[] ComputeSoftMaxOnVector(float[] predictedVector)
+    public float[] ComputeSoftMaxOnVector(float[] predictedVector)
     {
+        predictedVector = predictedVector.Select(x => x - predictedVector.Max()).ToArray(); // Stabilization
         float[] softMax = predictedVector.Select(x => (float)Math.Exp(x)).ToArray();
         float sum = softMax.Sum();
         return softMax.Select(x => x/sum).ToArray();
@@ -21,7 +22,7 @@ public class CrossEntropy: ILossFunction
     
     
     // Applies SoftMax on predicted vector and computes CrossEntropy
-    private float CrossEntropyVector(float[] predictedVector, int actual)
+    public float CrossEntropyVector(float[] predictedVector, int actual)
     {
         return ComputeCrossEntropyOnVector(ComputeSoftMaxOnVector(predictedVector), actual);
     }
