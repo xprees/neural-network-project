@@ -12,7 +12,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 {
     public List<ILayer> Layers { get; } = [];
 
-    public event EventHandler<EpochEndEventArgs> OnEpochEnd;
+    public event EventHandler<EpochEndEventArgs>? OnEpochEnd;
 
     public void AddLayer(ILayer layer) => Layers.Add(layer);
 
