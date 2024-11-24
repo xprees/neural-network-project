@@ -2,6 +2,8 @@ namespace NNStructure.ActivationFunctions;
 
 public interface IActivationFunction
 {
-    float Activate(float potential);
+    /// Returns the activation of the layer.
+    float[] ActivateLayer(float[] potentials);
+
     float Derivative(float value);
 }

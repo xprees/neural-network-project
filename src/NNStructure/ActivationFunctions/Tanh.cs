@@ -3,7 +3,10 @@ namespace NNStructure.ActivationFunctions;
 /// Hyperbolic Tangent activation function.
 public class Tanh : IActivationFunction
 {
-    public float Activate(float potential) => (float)Math.Tanh(potential);
+    public float[] ActivateLayer(float[] potentials) =>
+        potentials
+            .Select(potential => (float)Math.Tanh(potential))
+            .ToArray();
 
     public float Derivative(float value)
     {

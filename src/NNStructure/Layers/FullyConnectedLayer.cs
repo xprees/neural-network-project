@@ -35,7 +35,6 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
     public (float[] output, float[] innerPotentials) DoForwardPass(float[] input)
     {
-        var output = new float[OutputSize];
         var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
         Parallel.For(0, OutputSize, i =>
             {
@@ -45,12 +44,11 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
                     innerPotential += Weights[i, j + 1] * input[j]; // +1 to skip bias
                 }
 
-                var activationValue = ActivationFunction.Activate(innerPotential);
-                output[i] = activationValue;
                 innerPotentials[i] = innerPotential;
             }
         );
 
+        var output = ActivationFunction.ActivateLayer(innerPotentials);
         return (output, innerPotentials);
     }
 
