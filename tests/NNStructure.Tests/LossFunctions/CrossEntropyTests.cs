@@ -8,7 +8,7 @@ public class CrossEntropyTests
     [Test]
     public void SoftMaxTestSum()
     {
-        float[] predicted = [-2f ,-1f , -0.1f, 1000f, -100f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
+        float[] predicted = [-2f ,-1f , -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
         CrossEntropy entropy = new CrossEntropy();
         predicted = entropy.ComputeSoftMaxOnVector(predicted);
         predicted.Sum().Should().BeApproximately(1.0f, 0.000001f);
@@ -23,15 +23,23 @@ public class CrossEntropyTests
     [Test]
     public void CrossEntropyTest()
     {
-        float[] predicted = [-2f ,-1f , -0.1f, 100f, -100f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
+        float[] predicted = [-2f ,-1f , -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
         CrossEntropy entropy = new CrossEntropy();
+        float[] entropies = new float[10];
+        float minEntropy = 1000f;
         for (int i = 0; i < predicted.Length; i++)
         {
-            float[] expected = new float[predicted.Length];
             float crossEntropy = entropy.CrossEntropyVector(predicted, i);
             Console.WriteLine(i + ". " + crossEntropy + " was predicted... ");
+            entropies[i] = crossEntropy;
+            if (crossEntropy < minEntropy)
+            {
+                minEntropy = crossEntropy;
+            }
         }
-        
+
+        entropies[3].Should().Be(minEntropy);
+
 
     }
 }
