@@ -7,4 +7,16 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="CrossEntropy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="CrossEntropy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="CrossEntropy\**" />
+  </ItemGroup>
+
 </Project>
