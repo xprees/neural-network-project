@@ -23,9 +23,16 @@ public class CrossEntropy
         float sum = softMax.Sum();
         return softMax.Select(x => x/sum).ToArray();
     }
-    
-    public static float[][] ComputeSoftMaxOnBatch(float[][] predictedVectors)
+
+    public static float CrossEntropyVector(float[] predictedVector, int actual)
     {
-        return predictedVectors.Select(ComputeSoftMaxOnVector).ToArray();
+        return ComputeCrossEntropyOnVector(ComputeSoftMaxOnVector(predictedVector), actual);
     }
+    
+    public static float CrossEntropyBatch(float[][] predictedVectors, int[] actual, int batchSize)
+    {
+        predictedVectors = predictedVectors.Select(ComputeSoftMaxOnVector).ToArray();
+        return ComputeCrossEntropyOnBatch(predictedVectors, actual, batchSize);
+    }
+    
 }
