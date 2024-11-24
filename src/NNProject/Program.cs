@@ -50,9 +50,9 @@ Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
 var lossFunction = new MeanSquaredError();
-var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(0), new SgdOptimizer(0.3f));
-nn.AddLayer(new FullyConnectedLayer(784, 256, new Relu()));
-nn.AddLayer(new FullyConnectedLayer(256, 64, new Relu()));
+var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(), new SgdOptimizer(0.92f));
+nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
+nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(64, 10, new Relu())); // TODO: Change to Softmax
 
 Console.WriteLine("Loading test data...");
@@ -87,7 +87,6 @@ void OnEpochEnd(object? _, EpochEndEventArgs eventArgs)
     var result = nn.Test(testData);
     var stats = evaluator.EvaluateModel(result, testLabels);
     var loss = result.Zip(testLabelsOneHot, (predicted, expected) => lossFunction.Calculate(predicted, expected))
-        .Take(400)
         .Average();
     Console.WriteLine(
         $"\tEpoch: {epoch:00} - Accuracy {stats.Accuracy:F2} - Loss {loss:F2} - Time {epochTime} ms");
@@ -99,7 +98,7 @@ nn.InitializeWeights();
 Console.WriteLine("Training neural network...");
 stopwatch.Restart();
 
-nn.Train(trainInput, trainingExpectedOutput, 30, 64);
+nn.Train(trainInput, trainingExpectedOutput, 100, 64);
 
 var trainingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
