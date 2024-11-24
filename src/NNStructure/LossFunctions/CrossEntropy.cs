@@ -17,7 +17,7 @@ public class CrossEntropy: ILossFunction
         predictedVector = predictedVector.Select(x => x - predictedVector.Max()).ToArray(); // Stabilization
         float[] softMax = predictedVector.Select(x => (float)Math.Exp(x)).ToArray();
         float sum = softMax.Sum();
-        return softMax.Select(x => x/sum).ToArray();
+        return softMax.Select(x => x/sum + 0.00000001f).ToArray();
     }
     
     
