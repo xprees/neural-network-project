@@ -37,18 +37,19 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
     {
         var output = new float[OutputSize];
         var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
-        for (var i = 0; i < OutputSize; i++)
-        {
-            var innerPotential = Weights[i, 0]; // Bias
-            for (var j = 0; j < InputSize; j++)
+        Parallel.For(0, OutputSize, i =>
             {
-                innerPotential += Weights[i, j + 1] * input[j]; // +1 to skip bias
-            }
+                var innerPotential = Weights[i, 0]; // Bias
+                for (var j = 0; j < InputSize; j++)
+                {
+                    innerPotential += Weights[i, j + 1] * input[j]; // +1 to skip bias
+                }
 
-            var activationValue = ActivationFunction.Activate(innerPotential);
-            output[i] = activationValue;
-            innerPotentials[i] = innerPotential;
-        }
+                var activationValue = ActivationFunction.Activate(innerPotential);
+                output[i] = activationValue;
+                innerPotentials[i] = innerPotential;
+            }
+        );
 
         return (output, innerPotentials);
     }
