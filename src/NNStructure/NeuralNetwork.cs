@@ -6,9 +6,13 @@ using NNStructure.Optimizers;
 
 namespace NNStructure;
 
+public record EpochEndEventArgs(int Epoch);
+
 public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initializer, IOptimizer optimizer)
 {
     public List<ILayer> Layers { get; } = [];
+
+    public event EventHandler<EpochEndEventArgs> OnEpochEnd;
 
     public void AddLayer(ILayer layer) => Layers.Add(layer);
 
@@ -90,6 +94,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 var layerGradients = layersGradients[i];
                 layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
             }
+
+            OnEpochEnd?.Invoke(this, new EpochEndEventArgs(epoch));
         }
     }
 
