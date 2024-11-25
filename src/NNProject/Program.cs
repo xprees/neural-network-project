@@ -90,7 +90,7 @@ void OnEpochEnd(object? _, EpochEndEventArgs eventArgs)
     var loss = result.Zip(testLabelsOneHot, (predicted, expected) => lossFunction.Calculate(predicted, expected))
         .Average();
     Console.WriteLine(
-        $"\tEpoch: {epoch:00} - Accuracy {stats.Accuracy:F2} - Loss {loss:F2} - Time {epochTime} ms");
+        $"\tEpoch: {epoch:00} - Accuracy {stats.Accuracy * 100:F2}% - Loss {loss:F2} - Time {epochTime} ms");
 }
 
 nn.InitializeWeights();
