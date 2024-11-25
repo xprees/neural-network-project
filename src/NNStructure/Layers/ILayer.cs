@@ -20,7 +20,7 @@ public interface ILayer
 
     /// Resets the inner state of the layer
     /// <remarks>Not mandatory, but you can use to add custom logic</remarks>
-    void ResetStateBeforeEpochRun()
+    void ResetStateBeforeNewBatchRun()
     {
         // Optional 
     }

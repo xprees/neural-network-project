@@ -64,16 +64,20 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 
     public void Train(float[][] inputs, float[][] expectedResults, int maxEpochs, int miniBatchSize)
     {
+        var miniBatchRuns = inputs.Length / miniBatchSize;
+        if (inputs.Length >= 1_000) miniBatchRuns /= 10; // For large datasets reduce the number of mini batch runs
         for (var epoch = 0; epoch < maxEpochs; epoch++)
         {
-            Layers.ForEach(l => l.ResetStateBeforeEpochRun());
+            for (var miniBatchRun = 0; miniBatchRun < miniBatchRuns; miniBatchRun++)
+            {
+                Layers.ForEach(l => l.ResetStateBeforeNewBatchRun());
+                var run = miniBatchRun + miniBatchRuns * epoch;
+                var miniBatch = ChooseMiniBatch(inputs, expectedResults, run, miniBatchSize)
+                    .ToArray();
+                var gradientsByTrainingExample =
+                    new ConcurrentDictionary<int, float[][,]>(); // Gradients for each training example by k their index
 
-            var miniBatch = ChooseMiniBatch(inputs, expectedResults, epoch, miniBatchSize)
-                .ToArray();
-            var gradientsByTrainingExample =
-                new ConcurrentDictionary<int, float[][,]>(); // Gradients for each training example by k their index
-
-            Parallel.For(0, miniBatch.Length, k =>
+                Parallel.For(0, miniBatch.Length, k =>
                 {
                     var (trainingExample, expectedResult) = miniBatch[k];
                     var (predictedOutput, layerInputs, layersInnerPotentials) = ForwardPropagate(trainingExample);
@@ -84,15 +88,15 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                     {
                         throw new InvalidOperationException("Failed to add gradients to the dictionary.");
                     }
-                }
-            );
+                });
 
-            var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample);
-            for (var i = 0; i < Layers.Count; i++)
-            {
-                var layer = Layers[i];
-                var layerGradients = layersGradients[i];
-                layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
+                var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample);
+                for (var i = 0; i < Layers.Count; i++)
+                {
+                    var layer = Layers[i];
+                    var layerGradients = layersGradients[i];
+                    layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
+                }
             }
 
             OnEpochEnd?.Invoke(this, new EpochEndEventArgs(epoch));
@@ -159,12 +163,12 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 
     /// Chooses a mini batch of examples from the training set.
     /// <remarks>Cycles through dataset if it runs out of new cases</remarks>
-    private IEnumerable<(float[] trainingExample, float[] expectedResults)> ChooseMiniBatch(float[][] inputs,
-        float[][] expectedResults, int epoch,
-        int miniBatchSize)
+    private IEnumerable<(float[] trainingExample, float[] expectedResults)> ChooseMiniBatch(
+        float[][] inputs, float[][] expectedResults, int miniBatchRun, int miniBatchSize
+    )
     {
         var inputsLength = inputs.Length;
-        var startIndex = epoch * miniBatchSize;
+        var startIndex = miniBatchRun * miniBatchSize;
 
         var examplesCount = 0;
         while (examplesCount < miniBatchSize)
