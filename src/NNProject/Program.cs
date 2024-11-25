@@ -42,8 +42,8 @@ var oneHotEncoder = new OneHotEncoder<int>(Enumerable.Range(0, 10));
 
 var trainLabelsOneHot = oneHotEncoder.Encode(trainLabels.Select(x => (int)x.First()));
 
-var (trainInput, trainingExpectedOutput) = (normalizedData.ToArray(), trainLabelsOneHot.ToArray());
-//    preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray());
+var (trainInput, trainingExpectedOutput) =
+    preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray());
 
 var preprocessingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
