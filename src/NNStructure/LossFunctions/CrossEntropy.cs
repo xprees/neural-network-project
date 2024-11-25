@@ -1,30 +1,19 @@
-﻿namespace NNStructure.LossFunctions;
+﻿using NNStructure.ActivationFunctions;
 
-public class CrossEntropy: ILossFunction
+namespace NNStructure.LossFunctions;
+
+public class CrossEntropy : ILossFunction
 {
-    
-    public float ComputeCrossEntropyOnVector(float[] predictedVector, int actual)
-    {
-        return - MathF.Log(predictedVector[actual]);
-    }
-    
-    
-    public float[] ComputeSoftMaxOnVector(float[] predictedVector)
-    {
-        predictedVector = predictedVector.Select(x => x - predictedVector.Max()).ToArray(); // Stabilization
-        float[] softMax = predictedVector.Select(x => (float)Math.Exp(x)).ToArray();
-        float sum = softMax.Sum();
-        return softMax.Select(x => x/sum + 0.00000001f).ToArray();
-    }
-    
-    
-    // Applies SoftMax on predicted vector and computes CrossEntropy
-    public float CrossEntropyVector(float[] predictedVector, int actual)
-    {
-        return ComputeCrossEntropyOnVector(ComputeSoftMaxOnVector(predictedVector), actual);
-    }
-    
-    
+    private const float Epsilon = 0.00000001f; // To avoid log(0)
+    private readonly Softmax _softmax = new();
+
+    public float ComputeCrossEntropyOnVector(float[] predictedVector, int actual) =>
+        -MathF.Log(predictedVector[actual] + Epsilon);
+
+    /// Applies SoftMax on predicted vector and computes CrossEntropy
+    public float CrossEntropyVector(float[] predictedVector, int actual) =>
+        ComputeCrossEntropyOnVector(_softmax.ActivateLayer(predictedVector), actual);
+
 
     public float Calculate(float[] predicted, float[] expected)
     {
@@ -34,11 +23,12 @@ public class CrossEntropy: ILossFunction
         }
 
         if (predicted.Length <= 0) return 0;
-        
-        int index = expected.ToList().IndexOf(expected.Max());
+
+        var max = expected.Max();
+        var index = expected.ToList().IndexOf(max);
         return CrossEntropyVector(predicted, index);
     }
-    
+
 
     public float[] CalculateGradient(float[] predicted, float[] expected)
     {
@@ -47,12 +37,13 @@ public class CrossEntropy: ILossFunction
             throw new ArgumentException("The length of predicted and expected arrays must be the same.");
         }
 
-        var gradients = ComputeSoftMaxOnVector(predicted);
-        for (int i = 0; i < gradients.Length; i++)
+        // Softmax activation function is used in the output layer (predicted values were passed through it)
+        var gradient = new float[predicted.Length];
+        for (var i = 0; i < predicted.Length; i++)
         {
-            gradients[i] -= expected[i];
+            gradient[i] = predicted[i] - expected[i];
         }
 
-        return gradients;
+        return gradient;
     }
 }
