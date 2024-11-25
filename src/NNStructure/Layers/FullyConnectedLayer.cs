@@ -4,7 +4,11 @@ using NNStructure.Optimizers;
 
 namespace NNStructure.Layers;
 
-public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunction activationFn) : ILayer
+public class FullyConnectedLayer(
+    int inputSize,
+    int outputSize,
+    IActivationFunction activationFn,
+    float overrideLearningRate = 0) : ILayer
 {
     public int InputSize { get; } = inputSize;
     public int OutputSize { get; } = outputSize;
@@ -24,6 +28,9 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
     public void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize)
     {
+        var previousLearningRate = optimizer.LearningRate;
+        if (overrideLearningRate > 0) optimizer.LearningRate = overrideLearningRate;
+
         for (var i = 0; i < OutputSize; i++)
         {
             for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
@@ -31,6 +38,8 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
                 Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i, j]);
             }
         }
+
+        optimizer.LearningRate = previousLearningRate;
     }
 
     public (float[] output, float[] potentialGradients) DoForwardPass(float[] input)
