@@ -7,6 +7,6 @@ public class Relu : IActivationFunction
             .Select(potential => Math.Max(0, potential))
             .ToArray();
 
-    public float Derivative(float value) =>
-        value > 0 ? 1 : 0;
+    public float Derivative(float innerPottential) =>
+        innerPottential > 0 ? 1 : 0;
 }

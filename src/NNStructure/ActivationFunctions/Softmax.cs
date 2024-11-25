@@ -6,7 +6,7 @@ public class Softmax : IActivationFunction
     {
         var max = potentials.Max();
         var softMax = potentials
-            .Select(x => x - max) // Subtracting the maximum value to prevent overflow
+            //.Select(x => x - max) // Subtracting the maximum value to prevent overflow
             .Select(MathF.Exp)
             .ToArray();
         var sum = softMax.Sum();
@@ -14,10 +14,8 @@ public class Softmax : IActivationFunction
     }
 
 
-    public float Derivative(float value)
+    public float Derivative(float innerPottential)
     {
-        // The derivative of the softmax function is more complex and usually not computed directly.
-        // Instead, the gradient of the loss with respect to the input is used during backpropagation.
-        return value;
+        return 1; // TODO implement
     }
 }

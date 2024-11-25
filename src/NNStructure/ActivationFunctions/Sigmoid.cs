@@ -10,6 +10,6 @@ public class Sigmoid : IActivationFunction
     private float ActivateSingleNeuron(float potential) =>
         1 / (1 + (float)Math.Exp(-potential));
 
-    public float Derivative(float value) =>
-        ActivateSingleNeuron(value) * (1 - ActivateSingleNeuron(value));
+    public float Derivative(float innerPottential) =>
+        ActivateSingleNeuron(innerPottential) * (1 - ActivateSingleNeuron(innerPottential));
 }
