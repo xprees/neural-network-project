@@ -49,7 +49,7 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         );
 
         var output = ActivationFunction.ActivateLayer(innerPotentials);
-        var potentialGradients = innerPotentials.Select(ActivationFunction.Derivative).ToArray();
+        var potentialGradients = ActivationFunction.DerivativePotentials(innerPotentials);
         return (output, potentialGradients);
     }
 
@@ -58,7 +58,6 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
     {
         // Initialize gradients array for this layer and this training example
         layerBatchGradients = new float[OutputSize, InputSize + 1];
-
         var inputGradients = new float[InputSize];
 
         for (var i = 0; i < OutputSize; i++)

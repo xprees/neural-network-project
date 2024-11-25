@@ -8,9 +8,14 @@ public class Tanh : IActivationFunction
             .Select(potential => (float)Math.Tanh(potential))
             .ToArray();
 
-    public float Derivative(float innerPottential)
+    public float[] DerivativePotentials(float[] innerPotentials) =>
+        innerPotentials
+            .Select(TanhX)
+            .ToArray();
+
+    private static float TanhX(float innerPotential)
     {
-        var tanhX = (float)Math.Tanh(innerPottential);
+        var tanhX = (float)Math.Tanh(innerPotential);
         return 1 - tanhX * tanhX;
     }
 }

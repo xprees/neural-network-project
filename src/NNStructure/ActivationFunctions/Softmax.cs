@@ -6,7 +6,7 @@ public class Softmax : IActivationFunction
     {
         var max = potentials.Max();
         var softMax = potentials
-            //.Select(x => x - max) // Subtracting the maximum value to prevent overflow
+            .Select(x => x - max) // Subtracting the maximum value to prevent overflow
             .Select(MathF.Exp)
             .ToArray();
         var sum = softMax.Sum();
@@ -14,8 +14,16 @@ public class Softmax : IActivationFunction
     }
 
 
-    public float Derivative(float innerPottential)
+    public float[] DerivativePotentials(float[] innerPotentials)
     {
-        return 1; // TODO implement
+        var softmax = ActivateLayer(innerPotentials);
+        var derivative = new float[innerPotentials.Length];
+
+        for (var i = 0; i < innerPotentials.Length; i++)
+        {
+            derivative[i] = softmax[i] * (1 - softmax[i]);
+        }
+
+        return derivative;
     }
 }
