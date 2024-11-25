@@ -55,7 +55,7 @@ public class NnXor3DTests
         _nn.AddLayer(new FullyConnectedLayer(3, 1, new Tanh()));
     }
 
-    [TestCase(4, 1000)]
+    [TestCase(4, 500)]
     public void TestNnXorTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();
