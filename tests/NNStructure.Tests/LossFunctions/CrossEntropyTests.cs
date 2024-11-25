@@ -1,36 +1,36 @@
 ﻿using FluentAssertions;
-using NNStructure.CrossEntropy;
+using NNStructure.LossFunctions;
 
 namespace NNStructureTests.LossFunctions;
 
+[TestFixture]
 public class CrossEntropyTests
 {
     [Test]
     public void SoftMaxTestSum()
     {
-        float[] predicted = [-2f ,-1f , -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
-        CrossEntropy entropy = new CrossEntropy();
+        float[] predicted = [-2f, -1f, -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
+        var entropy = new CrossEntropy();
         predicted = entropy.ComputeSoftMaxOnVector(predicted);
         predicted.Sum().Should().BeApproximately(1.0f, 0.000001f);
-        Console.WriteLine(predicted.Sum() + " was predicted... ");
-        for (int i = 0; i < predicted.Length; i++)
+        Console.WriteLine($"{predicted.Sum()} was predicted... ");
+        for (var i = 0; i < predicted.Length; i++)
         {
-            Console.WriteLine(predicted[i] + " was " + predicted[i]);
+            Console.WriteLine($"{predicted[i]} was {predicted[i]}");
         }
-
     }
-    
+
     [Test]
     public void CrossEntropyTest()
     {
-        float[] predicted = [-2f ,-1f , -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
-        CrossEntropy entropy = new CrossEntropy();
-        float[] entropies = new float[10];
-        float minEntropy = 1000f;
-        for (int i = 0; i < predicted.Length; i++)
+        float[] predicted = [-2f, -1f, -0.1f, 10f, -10f, -0f, 0f, 0.000001f, -0.000001f, -0.000001f];
+        var entropy = new CrossEntropy();
+        var entropies = new float[10];
+        var minEntropy = 1000f;
+        for (var i = 0; i < predicted.Length; i++)
         {
-            float crossEntropy = entropy.CrossEntropyVector(predicted, i);
-            Console.WriteLine(i + ". " + crossEntropy + " was predicted... ");
+            var crossEntropy = entropy.CrossEntropyVector(predicted, i);
+            Console.WriteLine($"{i}. {crossEntropy} was predicted... ");
             entropies[i] = crossEntropy;
             if (crossEntropy < minEntropy)
             {
@@ -39,7 +39,17 @@ public class CrossEntropyTests
         }
 
         entropies[3].Should().Be(minEntropy);
+    }
 
+    [Test]
+    public void CalculateGradientTest()
+    {
+        float[] predicted = [0.1f, 0.2f, 0.7f];
+        float[] expected = [0f, 0f, 1f];
+        var entropy = new CrossEntropy();
+        var gradient = entropy.CalculateGradient(predicted, expected);
 
+        float[] expectedGradient = [0.1f, 0.2f, -0.3f];
+        gradient.Should().BeEquivalentTo(expectedGradient, options => options.WithStrictOrdering());
     }
 }

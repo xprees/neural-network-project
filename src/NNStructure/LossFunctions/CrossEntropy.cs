@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using NNStructure.LossFunctions;
-
-namespace NNStructure.CrossEntropy;
+﻿namespace NNStructure.LossFunctions;
 
 public class CrossEntropy: ILossFunction
 {
