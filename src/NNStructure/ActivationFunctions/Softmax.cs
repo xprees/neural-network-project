@@ -1,0 +1,22 @@
+namespace NNStructure.ActivationFunctions;
+
+public class Softmax : IActivationFunction
+{
+    public float[] ActivateLayer(float[] potentials)
+    {
+        var softMax = potentials
+            .Select(x => x - potentials.Max()) // Subtracting the maximum value to prevent overflow
+            .Select(MathF.Exp)
+            .ToArray();
+        var sum = softMax.Sum();
+        return softMax.Select(x => x / sum).ToArray();
+    }
+
+
+    public float Derivative(float value)
+    {
+        // The derivative of the softmax function is more complex and usually not computed directly.
+        // Instead, the gradient of the loss with respect to the input is used during backpropagation.
+        return value;
+    }
+}
