@@ -65,7 +65,6 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     public void Train(float[][] inputs, float[][] expectedResults, int maxEpochs, int miniBatchSize)
     {
         var miniBatchRuns = inputs.Length / miniBatchSize;
-        if (inputs.Length >= 1_000) miniBatchRuns /= 10; // For large datasets reduce the number of mini batch runs
         for (var epoch = 0; epoch < maxEpochs; epoch++)
         {
             for (var miniBatchRun = 0; miniBatchRun < miniBatchRuns; miniBatchRun++)
@@ -143,9 +142,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 {
                     for (var j = 0; j < kthExampleGradients[layerIndex].GetLength(1); j++)
                     {
-                        // Average the gradients for each layer 
-                        layersGradients[layerIndex][i, j] +=
-                            kthExampleGradients[layerIndex][i, j] / gradientsByTrainingExample.Count;
+                        layersGradients[layerIndex][i, j] += kthExampleGradients[layerIndex][i, j];
                     }
                 }
             }
