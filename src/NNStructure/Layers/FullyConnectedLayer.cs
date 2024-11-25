@@ -33,7 +33,7 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         }
     }
 
-    public (float[] output, float[] innerPotentials) DoForwardPass(float[] input)
+    public (float[] output, float[] potentialGradients) DoForwardPass(float[] input)
     {
         var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
         Parallel.For(0, OutputSize, i =>
@@ -49,11 +49,12 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
         );
 
         var output = ActivationFunction.ActivateLayer(innerPotentials);
-        return (output, innerPotentials);
+        var potentialGradients = innerPotentials.Select(ActivationFunction.Derivative).ToArray();
+        return (output, potentialGradients);
     }
 
     public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput,
-        float[] layerInnerPotentials, ref float[,] layerBatchGradients)
+        float[] potentialGradients, ref float[,] layerBatchGradients)
     {
         // Initialize gradients array for this layer and this training example
         layerBatchGradients = new float[OutputSize, InputSize + 1];
@@ -62,7 +63,7 @@ public class FullyConnectedLayer(int inputSize, int outputSize, IActivationFunct
 
         for (var i = 0; i < OutputSize; i++)
         {
-            var activationDerivative = ActivationFunction.Derivative(layerInnerPotentials[i]);
+            var activationDerivative = potentialGradients[i];
             var gradient = topLayerGradient[i] * activationDerivative;
 
             layerBatchGradients[i, 0] = gradient; // Bias

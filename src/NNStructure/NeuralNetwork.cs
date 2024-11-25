@@ -46,7 +46,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
     }
 
     public float[][,] BackPropagate(float[] predictedOutput,
-        float[] expectedOutput, float[][] layerInputs, float[][] layersInnerPotentials)
+        float[] expectedOutput, float[][] layerInputs, float[][] potentialGradients)
     {
         var lossGradient = lossFunction.CalculateGradient(predictedOutput, expectedOutput);
         var batchGradients = new float[Layers.Count][,];
@@ -54,7 +54,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         for (var i = Layers.Count - 1; i >= 0; i--)
         {
             var layer = Layers[i];
-            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], layersInnerPotentials[i],
+            lossGradient = layer.DoBackpropagation(lossGradient, layerInputs[i], potentialGradients[i],
                 ref batchGradients[i]);
         }
 
@@ -79,10 +79,10 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 Parallel.For(0, miniBatch.Length, k =>
                 {
                     var (trainingExample, expectedResult) = miniBatch[k];
-                    var (predictedOutput, layerInputs, layersInnerPotentials) = ForwardPropagate(trainingExample);
+                    var (predictedOutput, layerInputs, potentialGradients) = ForwardPropagate(trainingExample);
 
                     var kthBatchGradients =
-                        BackPropagate(predictedOutput, expectedResult, layerInputs, layersInnerPotentials);
+                        BackPropagate(predictedOutput, expectedResult, layerInputs, potentialGradients);
                     if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
                     {
                         throw new InvalidOperationException("Failed to add gradients to the dictionary.");
