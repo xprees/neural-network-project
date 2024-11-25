@@ -42,18 +42,19 @@ var oneHotEncoder = new OneHotEncoder<int>(Enumerable.Range(0, 10));
 
 var trainLabelsOneHot = oneHotEncoder.Encode(trainLabels.Select(x => (int)x.First()));
 
-var (trainInput, trainingExpectedOutput) =
-    preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray());
+var (trainInput, trainingExpectedOutput) = (normalizedData.ToArray(), trainLabelsOneHot.ToArray());
+//    preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray());
 
 var preprocessingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
-var lossFunction = new MeanSquaredError();
-var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(), new SgdOptimizer(0.92f));
+var lossFunction = new CrossEntropy();
+var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(), new SgdOptimizer(0.005f));
 nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
-nn.AddLayer(new FullyConnectedLayer(64, 10, new Relu())); // TODO: Change to Softmax
+nn.AddLayer(new FullyConnectedLayer(64, 10, new Softmax()));
+// Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
 Console.WriteLine("Loading test data...");
 stopwatch.Restart();
@@ -98,7 +99,7 @@ nn.InitializeWeights();
 Console.WriteLine("Training neural network...");
 stopwatch.Restart();
 
-nn.Train(trainInput, trainingExpectedOutput, 100, 64);
+nn.Train(trainInput, trainingExpectedOutput, 10, 64);
 
 var trainingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
