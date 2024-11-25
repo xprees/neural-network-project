@@ -50,10 +50,10 @@ Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
 // Create the neural network
 var lossFunction = new CrossEntropy();
-var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(), new SgdOptimizer(0.005f));
+var nn = new NeuralNetwork(lossFunction, new GlorotWeightInitializer(1), new SgdOptimizer(0.0079f));
 nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
 nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
-nn.AddLayer(new FullyConnectedLayer(64, 10, new Softmax()));
+nn.AddLayer(new FullyConnectedLayer(64, 10, new Sigmoid())); // TODO softmax
 // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
 Console.WriteLine("Loading test data...");
@@ -99,7 +99,7 @@ nn.InitializeWeights();
 Console.WriteLine("Training neural network...");
 stopwatch.Restart();
 
-nn.Train(trainInput, trainingExpectedOutput, 10, 64);
+nn.Train(trainInput, trainingExpectedOutput, 45, 64);
 
 var trainingTime = stopwatch.ElapsedMilliseconds;
 Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
