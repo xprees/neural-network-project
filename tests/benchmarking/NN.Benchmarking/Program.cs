@@ -1,4 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using NN.Benchmarking.LossFunctions;
+using NN.Benchmarking;
 
-BenchmarkRunner.Run<MeanSquaredErrorBenchmarks>();
+BenchmarkRunner.Run<SingeDoubleBenchmark>();
