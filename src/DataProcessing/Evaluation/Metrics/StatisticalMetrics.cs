@@ -43,4 +43,7 @@ public struct StatisticalMetrics()
         F1Score = F1Scores.Average();
         Accuracy = (float)TruePositives.Sum() / totalPredictions;
     }
+
+    public override string ToString() =>
+        $"Accuracy: {Accuracy:F}\nPrecision: {Precision:F}\nRecall: {Recall:F}\nF1 Score: {F1Score:F}";
 }
