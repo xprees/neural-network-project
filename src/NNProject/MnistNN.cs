@@ -14,7 +14,7 @@ using NNStructure.Optimizers;
 
 namespace NNProject;
 
-public class MnistNn(int maxEpochs, int batchSize, float learningRate, int seed = 42)
+public class MnistNn(int maxEpochs, int batchSize, float learningRate, float decayRate = 0.9f, int seed = 42)
 {
     private const int ClassesCount = 10;
 
@@ -28,10 +28,14 @@ public class MnistNn(int maxEpochs, int batchSize, float learningRate, int seed 
     private NeuralNetwork CreateNetwork()
     {
         _lossFunction = new CrossEntropy();
-        var nn = new NeuralNetwork(_lossFunction, new GlorotWeightInitializer(seed), new SgdOptimizer(learningRate));
+        var nn = new NeuralNetwork(
+            _lossFunction,
+            new GlorotWeightInitializer(seed),
+            new SgdMomentum(learningRate, decayRate)
+        );
         nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
         nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Softmax()));
+        nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Sigmoid()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
         return nn;
@@ -41,6 +45,7 @@ public class MnistNn(int maxEpochs, int batchSize, float learningRate, int seed 
         float[][] trainData, float[][] trainLabels)
     {
         using var stopwatch = new DisposableStopwatch();
+        stopwatch.Start();
         Console.WriteLine("Preprocessing data...");
 
         var normalizedData = _preprocessing.NormalizeByDivision(trainData);
@@ -72,7 +77,8 @@ public class MnistNn(int maxEpochs, int batchSize, float learningRate, int seed 
         using var stopwatch = new DisposableStopwatch();
         nn.InitializeWeights();
 
-        Console.WriteLine("Training neural network...");
+        Console.WriteLine(
+            $"Training neural network... (epochs: {maxEpochs}, batch size: {batchSize}, learning rate: {learningRate}, decayRate: {decayRate})");
         stopwatch.Restart();
 
         nn.Train(trainingData, trainingLabels, maxEpochs, batchSize);

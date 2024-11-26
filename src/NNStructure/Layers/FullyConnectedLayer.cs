@@ -12,7 +12,10 @@ public class FullyConnectedLayer(
 {
     public int InputSize { get; } = inputSize;
     public int OutputSize { get; } = outputSize;
-    public float[,] Weights { get; set; } = new float[outputSize, inputSize + 1]; // +1 for bias on index 0
+
+    public float[,,] Weights { get; set; } = new float[outputSize, inputSize + 1, 2];
+    // +1 for bias on index 0; (0 - weight, 1 - velocity/square gradient - for Momentum/RMSProp)
+
     public IActivationFunction ActivationFunction { get; } = activationFn;
 
     public void InitializeWeights(IWeightsInitializer initializer)
@@ -21,7 +24,18 @@ public class FullyConnectedLayer(
         {
             for (var j = 0; j < InputSize + 1; j++)
             {
-                Weights[i, j] = initializer.GetInitialWeight(this);
+                Weights[i, j, 0] = initializer.GetInitialWeight(this);
+            }
+        }
+    }
+
+    public void ResetStateBeforeNewBatchRun()
+    {
+        for (var i = 0; i < OutputSize; i++)
+        {
+            for (var j = 0; j < InputSize + 1; j++)
+            {
+                Weights[i, j, 1] = 0; // Reset velocity
             }
         }
     }
@@ -35,7 +49,7 @@ public class FullyConnectedLayer(
         {
             for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
             {
-                Weights[i, j] = optimizer.UpdateWeight(Weights[i, j], layerGradients[i, j]);
+                Weights[i, j, 0] = optimizer.UpdateWeight(Weights[i, j, 0], layerGradients[i, j], ref Weights[i, j, 1]);
             }
         }
 
@@ -47,10 +61,10 @@ public class FullyConnectedLayer(
         var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
         Parallel.For(0, OutputSize, i =>
             {
-                var innerPotential = Weights[i, 0]; // Bias
+                var innerPotential = Weights[i, 0, 0]; // Bias
                 for (var j = 0; j < InputSize; j++)
                 {
-                    innerPotential += Weights[i, j + 1] * input[j]; // +1 to skip bias
+                    innerPotential += Weights[i, j + 1, 0] * input[j]; // +1 to skip bias
                 }
 
                 innerPotentials[i] = innerPotential;
@@ -79,7 +93,7 @@ public class FullyConnectedLayer(
             {
                 layerBatchGradients[i, j] = gradient * layerInput[j - 1];
 
-                inputGradients[j - 1] += Weights[i, j] * gradient;
+                inputGradients[j - 1] += Weights[i, j, 0] * gradient;
             }
         }
 

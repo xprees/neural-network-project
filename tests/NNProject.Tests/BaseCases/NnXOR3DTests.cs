@@ -50,7 +50,7 @@ public class NnXor3DTests
     public void Setup()
     {
         _accuracyEvaluator = new AccuracyEvaluator(ClassificationTolerance);
-        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new SgdOptimizer(0.5f));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new Sgd(0.5f));
         _nn.AddLayer(new FullyConnectedLayer(3, 3, new Tanh()));
         _nn.AddLayer(new FullyConnectedLayer(3, 1, new Tanh()));
     }

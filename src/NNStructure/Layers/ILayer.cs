@@ -11,7 +11,7 @@ public interface ILayer
     int OutputSize { get; }
 
     /// Weights of the layer. First dimension is the number of neurons in the layer, second dimension is the number of inputs to the layer + 1 w0 is Bias.
-    float[,] Weights { get; set; }
+    float[,,] Weights { get; set; }
 
     IActivationFunction ActivationFunction { get; }
 
