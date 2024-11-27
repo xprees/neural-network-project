@@ -14,7 +14,13 @@ using NNStructure.Optimizers;
 
 namespace NNProject;
 
-public class MnistNn(int maxEpochs, int batchSize, float learningRate, float decayRate = 0.9f, int seed = 42)
+public class MnistNn(
+    int maxEpochs,
+    int batchSize,
+    float learningRate,
+    float decayRateOrBeta1 = 0.9f,
+    float beta2 = 0.999f,
+    int seed = 42)
 {
     private const int ClassesCount = 10;
 
@@ -31,7 +37,7 @@ public class MnistNn(int maxEpochs, int batchSize, float learningRate, float dec
         var nn = new NeuralNetwork(
             _lossFunction,
             new GlorotWeightInitializer(seed),
-            new SgdMomentum(learningRate, decayRate)
+            new SgdMomentum(learningRate, decayRateOrBeta1)
         );
         nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
         nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
@@ -78,7 +84,7 @@ public class MnistNn(int maxEpochs, int batchSize, float learningRate, float dec
         nn.InitializeWeights();
 
         Console.WriteLine(
-            $"Training neural network... (epochs: {maxEpochs}, batch size: {batchSize}, learning rate: {learningRate}, decayRate: {decayRate})");
+            $"Training neural network... (epochs: {maxEpochs}, batch size: {batchSize}, learning rate: {learningRate}, decayRate/beta1: {decayRateOrBeta1}, beta2: {beta2})");
         stopwatch.Restart();
 
         nn.Train(trainingData, trainingLabels, maxEpochs, batchSize);

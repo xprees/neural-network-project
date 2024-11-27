@@ -8,5 +8,5 @@ public interface IOptimizer
     public float LearningRate { get; set; }
 
     /// Updates the weight of the network using the gradient and batch size. Remember to divide the gradient by the batch size.
-    float UpdateWeight(float weight, float gradient, ref float extraData);
+    float UpdateWeight(float weight, float gradient, ref float velocity, ref float squareGradient);
 }

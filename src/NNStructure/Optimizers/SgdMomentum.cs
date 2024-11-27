@@ -7,7 +7,7 @@ public class SgdMomentum(float learningRate, float momentum) : IOptimizer
     public float LearningRate { get; set; } = learningRate;
     public float Momentum { get; set; } = momentum;
 
-    public float UpdateWeight(float weight, float gradient, ref float velocity)
+    public float UpdateWeight(float weight, float gradient, ref float velocity, ref float squaredGradient)
     {
         velocity = Momentum * velocity + LearningRate * gradient;
         return weight - velocity;

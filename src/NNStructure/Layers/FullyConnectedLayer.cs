@@ -13,8 +13,8 @@ public class FullyConnectedLayer(
     public int InputSize { get; } = inputSize;
     public int OutputSize { get; } = outputSize;
 
-    public float[,,] Weights { get; set; } = new float[outputSize, inputSize + 1, 2];
-    // +1 for bias on index 0; (0 - weight, 1 - velocity/square gradient - for Momentum/RMSProp)
+    public float[,,] Weights { get; set; } = new float[outputSize, inputSize + 1, 3];
+    // +1 for bias on index 0; (0 - weight, 1 - velocity/square gradient - for Momentum, 2 - square gradient - for Adam/RMSProp)
 
     public IActivationFunction ActivationFunction { get; } = activationFn;
 
@@ -36,6 +36,7 @@ public class FullyConnectedLayer(
             for (var j = 0; j < InputSize + 1; j++)
             {
                 Weights[i, j, 1] = 0; // Reset velocity
+                Weights[i, j, 2] = 0; // Reset square gradient
             }
         }
     }
@@ -49,7 +50,8 @@ public class FullyConnectedLayer(
         {
             for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
             {
-                Weights[i, j, 0] = optimizer.UpdateWeight(Weights[i, j, 0], layerGradients[i, j], ref Weights[i, j, 1]);
+                Weights[i, j, 0] = optimizer.UpdateWeight(Weights[i, j, 0], layerGradients[i, j],
+                    ref Weights[i, j, 1], ref Weights[i, j, 2]);
             }
         }
 

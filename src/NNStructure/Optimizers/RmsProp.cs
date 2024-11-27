@@ -8,7 +8,7 @@ public class RmsProp(float learningRate, float decayRate) : IOptimizer
 
     public float DecayRate { get; set; } = decayRate;
 
-    public float UpdateWeight(float weight, float gradient, ref float squareGradient)
+    public float UpdateWeight(float weight, float gradient, ref float velocity, ref float squareGradient)
     {
         squareGradient = DecayRate * squareGradient + (1 - DecayRate) * gradient * gradient;
         return weight - LearningRate * gradient / MathF.Sqrt(squareGradient + 1e-8f);
