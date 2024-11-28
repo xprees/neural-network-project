@@ -14,19 +14,20 @@ using NNStructure.Optimizers;
 
 namespace NNProject;
 
-public class MnistNn(
-    int maxEpochs,
-    int batchSize,
-    float learningRate,
-    float decayRateOrBeta1 = 0.9f,
-    float beta2 = 0.999f,
-    int seed = 42)
+public class MnistNn(MnistNnOptions options)
 {
     private const int ClassesCount = 10;
 
     private readonly OneHotEncoder<int> _oneHotEncoder = new(Enumerable.Range(0, ClassesCount));
     private readonly Preprocessing _preprocessing = new();
     private readonly MnistEvaluator _evaluator = new();
+
+    private readonly int _maxEpochs = options.MaxEpochs;
+    private readonly int _batchSize = options.BatchSize;
+    private readonly float _learningRate = options.LearningRate;
+    private readonly float _decayRateOrBeta1 = options.DecayRateOrBeta1;
+    private readonly float _beta2 = options.Beta2;
+    private readonly int _seed = options.Seed;
 
     // NN components
     private ILossFunction _lossFunction = null!;
@@ -36,12 +37,12 @@ public class MnistNn(
         _lossFunction = new CrossEntropy();
         var nn = new NeuralNetwork(
             _lossFunction,
-            new GlorotWeightInitializer(seed),
-            new SgdMomentum(learningRate, decayRateOrBeta1)
+            new GlorotWeightInitializer(_seed),
+            new Adam(_learningRate, _decayRateOrBeta1, _beta2)
         );
         nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
         nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Sigmoid()));
+        nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Softmax()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
         return nn;
@@ -59,7 +60,7 @@ public class MnistNn(
         var trainLabelsOneHot = _oneHotEncoder.Encode(trainLabels.Select(x => (int)x.First()));
 
         var (trainInput, trainingExpectedOutput) =
-            _preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray(), seed);
+            _preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray(), _seed);
 
         var preprocessingTime = stopwatch.ElapsedMilliseconds;
         Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
@@ -84,10 +85,10 @@ public class MnistNn(
         nn.InitializeWeights();
 
         Console.WriteLine(
-            $"Training neural network... (epochs: {maxEpochs}, batch size: {batchSize}, learning rate: {learningRate}, decayRate/beta1: {decayRateOrBeta1}, beta2: {beta2})");
+            $"Training neural network... (epochs: {_maxEpochs}, batch size: {_batchSize}, learning rate: {_learningRate}, decayRate/beta1: {_decayRateOrBeta1}, beta2: {_beta2})");
         stopwatch.Restart();
 
-        nn.Train(trainingData, trainingLabels, maxEpochs, batchSize);
+        nn.Train(trainingData, trainingLabels, _maxEpochs, _batchSize);
 
         var trainingTime = stopwatch.ElapsedMilliseconds;
         Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
