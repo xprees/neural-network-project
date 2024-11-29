@@ -40,9 +40,9 @@ public class MnistNn(MnistNnOptions options)
             new GlorotWeightInitializer(_seed),
             new Adam(_learningRate, _decayRateOrBeta1, _beta2)
         );
-        nn.AddLayer(new FullyConnectedLayer(784, 32, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(32, 64, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Softmax()));
+        nn.AddLayer(new FullyConnectedLayer(784, 64, new Relu()));
+        nn.AddLayer(new FullyConnectedLayer(64, 32, new Relu()));
+        nn.AddLayer(new FullyConnectedLayer(32, ClassesCount, new Softmax()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
         return nn;
@@ -85,7 +85,7 @@ public class MnistNn(MnistNnOptions options)
         nn.InitializeWeights();
 
         Console.WriteLine(
-            $"Training neural network... (epochs: {_maxEpochs}, batch size: {_batchSize}, learning rate: {_learningRate}, decayRate/beta1: {_decayRateOrBeta1}, beta2: {_beta2})");
+            $"Training neural network... \n({options})");
         stopwatch.Restart();
 
         nn.Train(trainingData, trainingLabels, _maxEpochs, _batchSize);
