@@ -89,7 +89,7 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                     }
                 });
 
-                var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample);
+                var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample, miniBatchSize);
                 for (var i = 0; i < Layers.Count; i++)
                 {
                     var layer = Layers[i];
@@ -114,7 +114,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         return predictions;
     }
 
-    private float[][,] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][,]> gradientsByTrainingExample)
+    private float[][,] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][,]> gradientsByTrainingExample,
+        int miniBatchSize)
     {
         if (gradientsByTrainingExample.IsEmpty)
         {
@@ -142,7 +143,8 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
                 {
                     for (var j = 0; j < kthExampleGradients[layerIndex].GetLength(1); j++)
                     {
-                        layersGradients[layerIndex][i, j] += kthExampleGradients[layerIndex][i, j];
+                        layersGradients[layerIndex][i, j] +=
+                            kthExampleGradients[layerIndex][i, j] / (float)miniBatchSize;
                     }
                 }
             }
