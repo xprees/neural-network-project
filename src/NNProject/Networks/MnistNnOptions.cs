@@ -1,4 +1,4 @@
-namespace NNProject;
+namespace NNProject.Networks;
 
 public record MnistNnOptions(
     int MaxEpochs = 15,

@@ -4,6 +4,7 @@ using DataProcessing.Evaluation.Metrics;
 using DataProcessing.Loading;
 using DataProcessing.Preprocessing;
 using NNProject.Exports;
+using NNProject.Logging;
 using NNProject.Performance;
 using NNStructure;
 using NNStructure.ActivationFunctions;
@@ -12,7 +13,7 @@ using NNStructure.Layers;
 using NNStructure.LossFunctions;
 using NNStructure.Optimizers;
 
-namespace NNProject;
+namespace NNProject.Networks;
 
 public class MnistNn(MnistNnOptions options)
 {
@@ -31,6 +32,9 @@ public class MnistNn(MnistNnOptions options)
 
     // NN components
     private ILossFunction _lossFunction = null!;
+
+    /// Enable or disable logging to console
+    public bool Logging { get; set; } = true;
 
     private NeuralNetwork CreateNetwork()
     {
@@ -53,7 +57,7 @@ public class MnistNn(MnistNnOptions options)
     {
         using var stopwatch = new DisposableStopwatch();
         stopwatch.Start();
-        Console.WriteLine("Preprocessing data...");
+        if (Logging) Console.WriteLine("Preprocessing data...");
 
         var normalizedData = _preprocessing.NormalizeByDivision(trainData);
 
@@ -63,7 +67,7 @@ public class MnistNn(MnistNnOptions options)
             _preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray(), _seed);
 
         var preprocessingTime = stopwatch.ElapsedMilliseconds;
-        Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
+        if (Logging) Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
         return (trainInput, trainingExpectedOutput);
     }
@@ -84,18 +88,22 @@ public class MnistNn(MnistNnOptions options)
         using var stopwatch = new DisposableStopwatch();
         nn.InitializeWeights();
 
-        Console.WriteLine(
-            $"Training neural network... \n({options})");
+        if (Logging) Console.WriteLine($"Training neural network... \n({options})");
+
         stopwatch.Restart();
 
         nn.Train(trainingData, trainingLabels, _maxEpochs, _batchSize);
 
         var trainingTime = stopwatch.ElapsedMilliseconds;
-        Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
+        if (Logging) Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
     }
 
-    public StatisticalMetrics Run(string[]? args = null)
+    public NnRunLog Run(string[]? args = null)
     {
+        var runLog = new NnRunLog([], options);
+        using var stopWatch = new DisposableStopwatch();
+        stopWatch.Start();
+
         var (trainDataPath, trainLabelsPath, testDataPath, testLabelsPath) = GetDatasetFilesPaths(args ?? []);
 
         var (trainData, trainLabels) = LoadTrainingData(trainDataPath, trainLabelsPath);
@@ -116,9 +124,10 @@ public class MnistNn(MnistNnOptions options)
                 .Average();
 
             var epochTime = epochStopwatch.ElapsedMilliseconds;
+            var epochLog = new NnEpochLog(arg.Epoch, epochStats, epochStats.Accuracy, loss, epochTime);
+            runLog.AddLog(epochLog);
 
-            Console.WriteLine(
-                $"\tEpoch: {arg.Epoch + 1:00} - Accuracy {epochStats.Accuracy * 100:F2}% - Loss {loss:F2} - Time {epochTime} ms");
+            if (Logging) epochLog.LogToConsole();
 
             epochStopwatch.Restart();
         };
@@ -128,9 +137,11 @@ public class MnistNn(MnistNnOptions options)
 
         var (result, stats) = TestNetwork(nn, testData, testLabels);
 
+        runLog.FinalMetrics = stats;
+        runLog.TotalTimeTook = stopWatch.ElapsedMilliseconds;
         ExportResults(result, "./results.csv");
 
-        return stats;
+        return runLog;
     }
 
     #region Data handling
@@ -138,7 +149,7 @@ public class MnistNn(MnistNnOptions options)
     private (float[][] trainData, float[][] trainLabels) LoadTrainingData(string trainDataPath, string trainLabelsPath)
     {
         using var stopwatch = new DisposableStopwatch();
-        Console.WriteLine("Loading training data...");
+        if (Logging) Console.WriteLine("Loading training data...");
         stopwatch.Start();
 
         using var trainDataLoader = new DataLoader(trainDataPath);
@@ -148,7 +159,7 @@ public class MnistNn(MnistNnOptions options)
         var trainLabels = trainLabelsLoader.ReadAllVectors();
 
         var trainDataTime = stopwatch.ElapsedMilliseconds;
-        Console.WriteLine($"[DONE] Loading training data... Time: {trainDataTime} ms");
+        if (Logging) Console.WriteLine($"[DONE] Loading training data... Time: {trainDataTime} ms");
 
         return (trainData, trainLabels);
     }
@@ -157,7 +168,7 @@ public class MnistNn(MnistNnOptions options)
         string testLabelsPath)
     {
         using var stopwatch = new DisposableStopwatch();
-        Console.WriteLine("Loading test data...");
+        if (Logging) Console.WriteLine("Loading test data...");
         stopwatch.Restart();
 
         using var testDataLoader = new DataLoader(testDataPath);
@@ -171,7 +182,7 @@ public class MnistNn(MnistNnOptions options)
         var testLabelsOneHot = _oneHotEncoder.Encode(testLabels.Select(x => (int)x)).ToArray();
 
         var testDataTime = stopwatch.ElapsedMilliseconds;
-        Console.WriteLine($"[DONE] Loading test data... Time: {testDataTime} ms");
+        if (Logging) Console.WriteLine($"[DONE] Loading test data... Time: {testDataTime} ms");
 
         return (testData, testLabels, testLabelsOneHot);
     }
@@ -181,7 +192,7 @@ public class MnistNn(MnistNnOptions options)
         var decodedResult = _oneHotEncoder.Decode(result);
         ResultExporter.ExportResultsAsCsv(path, decodedResult);
 
-        Console.WriteLine($"Results exported to {path}");
+        if (Logging) Console.WriteLine($"Results exported to {path}");
     }
 
     #endregion
