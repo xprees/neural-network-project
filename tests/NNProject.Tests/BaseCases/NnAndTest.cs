@@ -42,12 +42,12 @@ public class NnAndTest
     public void Setup()
     {
         _accuracyEvaluator = new AccuracyEvaluator(ClassificationTolerance);
-        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new Sgd(0.05f));
+        _nn = new NeuralNetwork(new MeanSquaredError(), new GlorotWeightInitializer(), new Adam(0.001f));
         _nn.AddLayer(new FullyConnectedLayer(2, 2, new Tanh()));
         _nn.AddLayer(new FullyConnectedLayer(2, 1, new Tanh()));
     }
 
-    [TestCase(4, 500)]
+    [TestCase(4, 1000)]
     public void TestNnAndTraining(int miniBatchSize, int maxEpochs)
     {
         _nn.InitializeWeights();
