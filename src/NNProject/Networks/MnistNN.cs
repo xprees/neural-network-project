@@ -29,6 +29,7 @@ public class MnistNn(MnistNnOptions options)
     private readonly float _decayRateOrBeta1 = options.DecayRateOrBeta1;
     private readonly float _beta2 = options.Beta2;
     private readonly int _seed = options.Seed;
+    private readonly bool _shuffleData = options.ShuffleData;
 
     // NN components
     private ILossFunction _lossFunction = null!;
@@ -42,7 +43,8 @@ public class MnistNn(MnistNnOptions options)
         var nn = new NeuralNetwork(
             _lossFunction,
             new GlorotWeightInitializer(_seed),
-            new Adam(_learningRate, _decayRateOrBeta1, _beta2)
+            new Adam(_learningRate, _decayRateOrBeta1, _beta2),
+            _seed
         );
         nn.AddLayer(new FullyConnectedLayer(784, 64, new Relu()));
         nn.AddLayer(new FullyConnectedLayer(64, 32, new Relu()));
@@ -59,12 +61,13 @@ public class MnistNn(MnistNnOptions options)
         stopwatch.Start();
         if (Logging) Console.WriteLine("Preprocessing data...");
 
-        var normalizedData = _preprocessing.NormalizeByDivision(trainData);
+        var trainInput = _preprocessing
+            .NormalizeByDivision(trainData)
+            .ToArray();
 
-        var trainLabelsOneHot = _oneHotEncoder.Encode(trainLabels.Select(x => (int)x.First()));
-
-        var (trainInput, trainingExpectedOutput) =
-            _preprocessing.ShuffleData(normalizedData.ToArray(), trainLabelsOneHot.ToArray(), _seed);
+        var trainingExpectedOutput = _oneHotEncoder
+            .Encode(trainLabels.Select(x => (int)x.First()))
+            .ToArray();
 
         var preprocessingTime = stopwatch.ElapsedMilliseconds;
         if (Logging) Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
@@ -92,7 +95,7 @@ public class MnistNn(MnistNnOptions options)
 
         stopwatch.Restart();
 
-        nn.Train(trainingData, trainingLabels, _maxEpochs, _batchSize);
+        nn.Train(trainingData, trainingLabels, _maxEpochs, _batchSize, _shuffleData);
 
         var trainingTime = stopwatch.ElapsedMilliseconds;
         if (Logging) Console.WriteLine($"[DONE] Training neural network... Time: {trainingTime} ms");
