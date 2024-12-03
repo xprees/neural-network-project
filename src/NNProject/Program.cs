@@ -8,7 +8,8 @@ totalStopwatch.Start();
 //{ MaxEpochs = 50, BatchSize = 512, LearningRate = 0.0001, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 1 } - 85.89% Softmax + Adam + CrossEntropy
 // { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.0003, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 86.32% Soft + Adam + Cross - 784 -> 64 -> 32 -> 10
 // { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.0002, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 86.35% (same)
-var mnistNn = new MnistNn(new MnistNnOptions(50, 1024, 0.0003f, Seed: 42));
+// { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.00025, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 85.65% (same) -> 784 -> 128 -> 64 -> 10
+var mnistNn = new MnistNn(new MnistNnOptions(50, 512, 0.0002f, Seed: 42));
 var log = mnistNn.Run();
 
 Console.WriteLine(log);
@@ -16,5 +17,4 @@ Console.WriteLine(log);
 var totalRunTime = totalStopwatch.ElapsedMilliseconds;
 Console.WriteLine($"Total time: {totalRunTime} ms ({totalRunTime / (1000f * 60):F} min)");
 
-// TODO implement saving best accuracy from all epochs and also killing
-//  the training if the accuracy is not improving for a while
+// TODO add early stopping?
