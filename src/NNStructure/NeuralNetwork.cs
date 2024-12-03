@@ -8,8 +8,13 @@ namespace NNStructure;
 
 public record EpochEndEventArgs(int Epoch);
 
-public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initializer, IOptimizer optimizer)
+public class NeuralNetwork(
+    ILossFunction lossFunction,
+    IWeightsInitializer initializer,
+    IOptimizer optimizer,
+    int seed = 42)
 {
+    private readonly Random _random = new(seed);
     public List<ILayer> Layers { get; } = [];
 
     public event EventHandler<EpochEndEventArgs>? OnEpochEnd;
@@ -61,12 +66,17 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
         return batchGradients;
     }
 
-
-    public void Train(float[][] inputs, float[][] expectedResults, int maxEpochs, int miniBatchSize)
+    public void Train(float[][] inputs, float[][] expectedResults, int maxEpochs, int miniBatchSize,
+        bool preEpochDataShuffle = true)
     {
         var miniBatchRuns = inputs.Length / miniBatchSize;
         for (var epoch = 0; epoch < maxEpochs; epoch++)
         {
+            if (preEpochDataShuffle)
+            {
+                (inputs, expectedResults) = ShuffleData(inputs, expectedResults);
+            }
+
             for (var miniBatchRun = 0; miniBatchRun < miniBatchRuns; miniBatchRun++)
             {
                 Layers.ForEach(l => l.ResetStateBeforeNewBatchRun());
@@ -100,6 +110,17 @@ public class NeuralNetwork(ILossFunction lossFunction, IWeightsInitializer initi
 
             OnEpochEnd?.Invoke(this, new EpochEndEventArgs(epoch));
         }
+    }
+
+    private (float[][] inputs, float[][] expectedResults) ShuffleData(float[][] inputs, float[][] expectedResults)
+    {
+        var zippedData = inputs
+            .Zip(expectedResults, (input, expected) => (input, expected))
+            .ToArray();
+        _random.Shuffle(zippedData);
+        inputs = zippedData.Select(z => z.input).ToArray();
+        expectedResults = zippedData.Select(z => z.expected).ToArray();
+        return (inputs, expectedResults);
     }
 
     /// Does the forward propagation for the input vectors and returns prediction vectors
