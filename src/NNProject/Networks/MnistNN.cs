@@ -46,9 +46,8 @@ public class MnistNn(MnistNnOptions options)
             new Adam(_learningRate, _decayRateOrBeta1, _beta2),
             _seed
         );
-        nn.AddLayer(new FullyConnectedLayer(784, 64, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(64, 32, new Relu()));
-        nn.AddLayer(new FullyConnectedLayer(32, ClassesCount, new Softmax()));
+        nn.AddLayer(new FullyConnectedLayer(784, 256, new Relu()));
+        nn.AddLayer(new FullyConnectedLayer(256, ClassesCount, new Softmax()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
         return nn;
