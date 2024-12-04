@@ -6,6 +6,8 @@ public class RmsProp(float learningRate, float decayRate) : IOptimizer
 {
     public float LearningRate { get; set; } = learningRate;
 
+    public int TimeStep { get; set; } // Not used in RmsProp
+
     public float DecayRate { get; set; } = decayRate;
 
     public float UpdateWeight(float weight, float gradient, ref float velocity, ref float squareGradient)

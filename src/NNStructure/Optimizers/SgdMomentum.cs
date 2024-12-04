@@ -5,6 +5,9 @@ namespace NNStructure.Optimizers;
 public class SgdMomentum(float learningRate, float momentum) : IOptimizer
 {
     public float LearningRate { get; set; } = learningRate;
+
+    public int TimeStep { get; set; } // Not used in SGD with momentum
+
     public float Momentum { get; set; } = momentum;
 
     public float UpdateWeight(float weight, float gradient, ref float velocity, ref float squaredGradient)

@@ -106,6 +106,8 @@ public class NeuralNetwork(
                     var layerGradients = layersGradients[i];
                     layer.UpdateWeights(layerGradients, optimizer, miniBatchSize);
                 }
+
+                optimizer.TimeStep++;
             }
 
             OnEpochEnd?.Invoke(this, new EpochEndEventArgs(epoch));
@@ -116,8 +118,8 @@ public class NeuralNetwork(
     {
         var zippedData = inputs
             .Zip(expectedResults, (input, expected) => (input, expected))
+            .OrderBy(_ => _random.Next())
             .ToArray();
-        _random.Shuffle(zippedData);
         inputs = zippedData.Select(z => z.input).ToArray();
         expectedResults = zippedData.Select(z => z.expected).ToArray();
         return (inputs, expectedResults);
