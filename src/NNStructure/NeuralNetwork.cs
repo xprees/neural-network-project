@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using NNStructure.Initialization;
 using NNStructure.Layers;
 using NNStructure.LossFunctions;
@@ -83,8 +82,9 @@ public class NeuralNetwork(
                 var run = miniBatchRun + miniBatchRuns * epoch;
                 var miniBatch = ChooseMiniBatch(inputs, expectedResults, run, miniBatchSize)
                     .ToArray();
-                var gradientsByTrainingExample =
-                    new ConcurrentDictionary<int, float[][,]>(); // Gradients for each training example by k their index
+
+                // Gradients for each training example by k their index
+                var gradientsByTrainingExample = new float[miniBatchSize][][,];
 
                 Parallel.For(0, miniBatch.Length, k =>
                 {
@@ -93,10 +93,8 @@ public class NeuralNetwork(
 
                     var kthBatchGradients =
                         BackPropagate(predictedOutput, expectedResult, layerInputs, potentialGradients);
-                    if (!gradientsByTrainingExample.TryAdd(k, kthBatchGradients))
-                    {
-                        throw new InvalidOperationException("Failed to add gradients to the dictionary.");
-                    }
+
+                    gradientsByTrainingExample[k] = kthBatchGradients;
                 });
 
                 var layersGradients = AggregateGradientsByLayers(gradientsByTrainingExample, miniBatchSize);
@@ -137,47 +135,37 @@ public class NeuralNetwork(
         return predictions;
     }
 
-    private float[][,] AggregateGradientsByLayers(ConcurrentDictionary<int, float[][,]> gradientsByTrainingExample,
-        int miniBatchSize)
+    private float[][,] AggregateGradientsByLayers(float[][][,] gradientsByTrainingExample, int miniBatchSize)
     {
-        if (gradientsByTrainingExample.IsEmpty)
+        var firstExampleGradients = gradientsByTrainingExample[0];
+
+        // Initialize the array with zeros
+        var layersCount = Layers.Count;
+        var layersGradients = new float[layersCount][,];
+        for (var layerIndex = 0; layerIndex < layersCount; layerIndex++)
         {
-            throw new InvalidOperationException("No gradients calculated for updating.");
+            var neuronsCount = firstExampleGradients[layerIndex].GetLength(0);
+            var weightsCount = firstExampleGradients[layerIndex].GetLength(1);
+            layersGradients[layerIndex] = new float[neuronsCount, weightsCount];
         }
 
-        var layersGradients = new float[Layers.Count][,];
-        for (var i = 0; i < Layers.Count; i++)
-        {
-            var firstExampleGradients = gradientsByTrainingExample.Values.FirstOrDefault();
-            if (firstExampleGradients == null)
-            {
-                throw new InvalidOperationException("No gradients found for the first example.");
-            }
 
-            layersGradients[i] =
-                new float[firstExampleGradients[i].GetLength(0), firstExampleGradients[i].GetLength(1)];
-        }
-
-        foreach (var kthExampleGradients in gradientsByTrainingExample.Values)
+        foreach (var kthExampleGradients in gradientsByTrainingExample)
         {
-            for (var layerIndex = 0; layerIndex < Layers.Count; layerIndex++)
+            for (var layerIndex = 0; layerIndex < layersCount; layerIndex++)
             {
-                for (var i = 0; i < kthExampleGradients[layerIndex].GetLength(0); i++)
+                var neuronsCount = layersGradients[layerIndex].GetLength(0);
+                for (var i = 0; i < neuronsCount; i++)
                 {
-                    for (var j = 0; j < kthExampleGradients[layerIndex].GetLength(1); j++)
+                    var weightsCount = layersGradients[layerIndex].GetLength(1);
+                    for (var j = 0; j < weightsCount; j++)
                     {
+                        // Average the gradients for each layer 
                         layersGradients[layerIndex][i, j] +=
                             kthExampleGradients[layerIndex][i, j] / (float)miniBatchSize;
                     }
                 }
             }
-        }
-
-        if (layersGradients.Length != Layers.Count)
-        {
-            throw new InvalidOperationException(
-                $"The number of layers ({Layers.Count}) and the number of gradients ({layersGradients.Length}) do not match."
-            );
         }
 
         return layersGradients;
