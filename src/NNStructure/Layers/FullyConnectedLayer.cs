@@ -10,6 +10,9 @@ public class FullyConnectedLayer(
     IActivationFunction activationFn,
     float overrideLearningRate = 0) : ILayer
 {
+    private readonly int _inputSize = inputSize;
+    private readonly int _outputSize = outputSize;
+
     public int InputSize { get; } = inputSize;
     public int OutputSize { get; } = outputSize;
 
@@ -20,9 +23,9 @@ public class FullyConnectedLayer(
 
     public void InitializeWeights(IWeightsInitializer initializer)
     {
-        for (var i = 0; i < OutputSize; i++)
+        for (var i = 0; i < _outputSize; i++)
         {
-            for (var j = 0; j < InputSize + 1; j++)
+            for (var j = 0; j < _inputSize + 1; j++)
             {
                 Weights[i, j, 0] = initializer.GetInitialWeight(this);
             }
@@ -31,9 +34,9 @@ public class FullyConnectedLayer(
 
     public void ResetStateBeforeNewBatchRun()
     {
-        for (var i = 0; i < OutputSize; i++)
+        for (var i = 0; i < _outputSize; i++)
         {
-            for (var j = 0; j < InputSize + 1; j++)
+            for (var j = 0; j < _inputSize + 1; j++)
             {
                 Weights[i, j, 1] = 0; // Reset velocity
                 Weights[i, j, 2] = 0; // Reset square gradient
@@ -46,9 +49,9 @@ public class FullyConnectedLayer(
         var previousLearningRate = optimizer.LearningRate;
         if (overrideLearningRate > 0) optimizer.LearningRate = overrideLearningRate;
 
-        for (var i = 0; i < OutputSize; i++)
+        for (var i = 0; i < _outputSize; i++)
         {
-            for (var j = 0; j < InputSize + 1; j++) // including bias on index 0
+            for (var j = 0; j < _inputSize + 1; j++) // including bias on index 0
             {
                 Weights[i, j, 0] = optimizer.UpdateWeight(Weights[i, j, 0], layerGradients[i, j],
                     ref Weights[i, j, 1], ref Weights[i, j, 2]);
@@ -60,11 +63,11 @@ public class FullyConnectedLayer(
 
     public (float[] output, float[] potentialGradients) DoForwardPass(float[] input)
     {
-        var innerPotentials = new float[OutputSize]; // Inner potentials of neurons
-        Parallel.For(0, OutputSize, i =>
+        var innerPotentials = new float[_outputSize]; // Inner potentials of neurons
+        Parallel.For(0, _outputSize, i =>
             {
                 var innerPotential = Weights[i, 0, 0]; // Bias
-                for (var j = 0; j < InputSize; j++)
+                for (var j = 0; j < _inputSize; j++)
                 {
                     innerPotential += Weights[i, j + 1, 0] * input[j]; // +1 to skip bias
                 }
@@ -82,16 +85,16 @@ public class FullyConnectedLayer(
         float[] potentialGradients, ref float[,] layerBatchGradients)
     {
         // Initialize gradients array for this layer and this training example
-        layerBatchGradients = new float[OutputSize, InputSize + 1];
-        var inputGradients = new float[InputSize];
+        layerBatchGradients = new float[_outputSize, _inputSize + 1];
+        var inputGradients = new float[_inputSize];
 
-        for (var i = 0; i < OutputSize; i++)
+        for (var i = 0; i < _outputSize; i++)
         {
             var activationDerivative = potentialGradients[i];
             var gradient = topLayerGradient[i] * activationDerivative;
 
             layerBatchGradients[i, 0] = gradient; // Bias
-            for (var j = 1; j < InputSize + 1; j++) // Start from 1 to skip bias
+            for (var j = 1; j < _inputSize + 1; j++) // Start from 1 to skip bias
             {
                 layerBatchGradients[i, j] = gradient * layerInput[j - 1];
 
