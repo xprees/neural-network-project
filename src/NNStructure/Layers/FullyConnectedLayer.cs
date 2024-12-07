@@ -77,12 +77,12 @@ public class FullyConnectedLayer(
         );
 
         var output = ActivationFunction.ActivateLayer(innerPotentials);
-        var potentialGradients = ActivationFunction.DerivativePotentials(innerPotentials);
-        return (output, potentialGradients);
+        var innerPotentialGradients = ActivationFunction.DerivativePotentials(innerPotentials);
+        return (output, innerPotentialGradients);
     }
 
     public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput,
-        float[] potentialGradients, ref float[,] layerBatchGradients)
+        float[] innerPotentialGradients, ref float[,] layerBatchGradients)
     {
         // Initialize gradients array for this layer and this training example
         layerBatchGradients = new float[_outputSize, _inputSize + 1];
@@ -90,8 +90,7 @@ public class FullyConnectedLayer(
 
         for (var i = 0; i < _outputSize; i++)
         {
-            var activationDerivative = potentialGradients[i];
-            var gradient = topLayerGradient[i] * activationDerivative;
+            var gradient = topLayerGradient[i] * innerPotentialGradients[i];
 
             layerBatchGradients[i, 0] = gradient; // Bias
             for (var j = 1; j < _inputSize + 1; j++) // Start from 1 to skip bias

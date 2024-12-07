@@ -30,6 +30,6 @@ public interface ILayer
 
     (float[] output, float[] potentialGradients) DoForwardPass(float[] input);
 
-    float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput, float[] potentialGradients,
+    float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput, float[] innerPotentialGradients,
         ref float[,] layerBatchGradients);
 }
