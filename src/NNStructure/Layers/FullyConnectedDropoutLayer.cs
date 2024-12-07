@@ -1,41 +1,25 @@
 using NNStructure.ActivationFunctions;
-using NNStructure.Initialization;
-using NNStructure.Optimizers;
 
 namespace NNStructure.Layers;
 
-public class FullyConnectedLayer(
+public class FullyConnectedDropoutLayer(
     int inputSize,
     int outputSize,
     IActivationFunction activationFn,
-    float overrideLearningRate = 0) : ILayer
+    float dropoutRate = 0.5f,
+    float overrideLearningRate = 0,
+    int seed = 42) : FullyConnectedLayer(inputSize, outputSize, activationFn, overrideLearningRate)
 {
+    private readonly Random _random = new(seed);
     private readonly int _inputSize = inputSize;
     private readonly int _outputSize = outputSize;
+    private readonly bool[] _dropoutMask = new bool[outputSize];
 
-    public int InputSize { get; } = inputSize;
-    public int OutputSize { get; } = outputSize;
-
-    public float[,,] Weights { get; set; } = new float[outputSize, inputSize + 1, 3];
-    // +1 for bias on index 0; (0 - weight, 1 - velocity/square gradient - for Momentum, 2 - square gradient - for Adam/RMSProp)
-
-    public IActivationFunction ActivationFunction { get; } = activationFn;
-
-    public void InitializeWeights(IWeightsInitializer initializer)
+    public new void ResetStateBeforeNewBatchRun()
     {
         for (var i = 0; i < _outputSize; i++)
         {
-            for (var j = 0; j < _inputSize + 1; j++)
-            {
-                Weights[i, j, 0] = initializer.GetInitialWeight(this);
-            }
-        }
-    }
-
-    public void ResetStateBeforeNewBatchRun()
-    {
-        for (var i = 0; i < _outputSize; i++)
-        {
+            _dropoutMask[i] = _random.NextSingle() > dropoutRate; // Generate mask
             for (var j = 0; j < _inputSize + 1; j++)
             {
                 Weights[i, j, 1] = 0; // Reset velocity
@@ -44,32 +28,24 @@ public class FullyConnectedLayer(
         }
     }
 
-    public void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize)
-    {
-        var previousLearningRate = optimizer.LearningRate;
-        if (overrideLearningRate > 0) optimizer.LearningRate = overrideLearningRate;
-
-        for (var i = 0; i < _outputSize; i++)
-        {
-            for (var j = 0; j < _inputSize + 1; j++) // including bias on index 0
-            {
-                Weights[i, j, 0] = optimizer.UpdateWeight(Weights[i, j, 0], layerGradients[i, j],
-                    ref Weights[i, j, 1], ref Weights[i, j, 2]);
-            }
-        }
-
-        optimizer.LearningRate = previousLearningRate;
-    }
-
-    public (float[] output, float[] potentialGradients) DoForwardPass(float[] input, bool isTraining)
+    public new (float[] output, float[] potentialGradients) DoForwardPass(float[] input, bool isTraining)
     {
         var innerPotentials = new float[_outputSize]; // Inner potentials of neurons
         Parallel.For(0, _outputSize, new ParallelOptions { MaxDegreeOfParallelism = 16 }, i =>
             {
+                // Neuron will be dropped - no need to calculate inner potential
+                if (isTraining && !_dropoutMask[i]) return;
+
                 var innerPotential = Weights[i, 0, 0]; // Bias
                 for (var j = 0; j < _inputSize; j++)
                 {
                     innerPotential += Weights[i, j + 1, 0] * input[j]; // +1 to skip bias
+                }
+
+                // Apply Inverted dropout scaling
+                if (isTraining)
+                {
+                    innerPotential /= (1 - dropoutRate);
                 }
 
                 innerPotentials[i] = innerPotential;
@@ -79,10 +55,22 @@ public class FullyConnectedLayer(
         var output = ActivationFunction.ActivateLayer(innerPotentials);
         // Gradients of inner potentials -> precomputed for backpropagation
         var innerPotentialGradients = ActivationFunction.DerivativePotentials(innerPotentials);
+
+        if (!isTraining) return (output, innerPotentialGradients);
+
+        // Apply dropout mask on output during training
+        for (var i = 0; i < _outputSize; i++)
+        {
+            if (!_dropoutMask[i])
+            {
+                output[i] = 0;
+            }
+        }
+
         return (output, innerPotentialGradients);
     }
 
-    public float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput,
+    public new float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput,
         float[] innerPotentialGradients, ref float[,] layerBatchGradients)
     {
         // Initialize gradients array for this layer and this training example
@@ -91,7 +79,10 @@ public class FullyConnectedLayer(
 
         for (var i = 0; i < _outputSize; i++)
         {
-            var gradient = topLayerGradient[i] * innerPotentialGradients[i];
+            if (!_dropoutMask[i]) continue; // Neuron is dropped
+
+            var topGradient = topLayerGradient[i] / (1 - dropoutRate);
+            var gradient = topGradient * innerPotentialGradients[i];
 
             layerBatchGradients[i, 0] = gradient; // Bias
             for (var j = 1; j < _inputSize + 1; j++) // Start from 1 to skip bias
