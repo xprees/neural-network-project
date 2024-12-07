@@ -64,7 +64,7 @@ public class FullyConnectedLayer(
     public (float[] output, float[] potentialGradients) DoForwardPass(float[] input)
     {
         var innerPotentials = new float[_outputSize]; // Inner potentials of neurons
-        Parallel.For(0, _outputSize, i =>
+        Parallel.For(0, _outputSize, new ParallelOptions { MaxDegreeOfParallelism = 16 }, i =>
             {
                 var innerPotential = Weights[i, 0, 0]; // Bias
                 for (var j = 0; j < _inputSize; j++)

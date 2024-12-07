@@ -31,8 +31,6 @@ public class NeuralNetwork(
     /// Does the forward propagation for the input vector and returns prediction vector 
     public (float[] prediction, float[][] layerInputs, float[][] layersInnerPotentials) ForwardPropagate(float[] input)
     {
-        CheckInputDimensionMatchesFirstLayerOrThrow(input);
-
         var layerInputs = new float[Layers.Count][];
         var layersInnerPotentials = new float[Layers.Count][];
         var output = input;
@@ -86,7 +84,7 @@ public class NeuralNetwork(
                 // Gradients for each training example by k their index
                 var gradientsByTrainingExample = new float[miniBatchSize][][,];
 
-                Parallel.For(0, miniBatch.Length, k =>
+                Parallel.For(0, miniBatch.Length, new ParallelOptions { MaxDegreeOfParallelism = 16 }, k =>
                 {
                     var (trainingExample, expectedResult) = miniBatch[k];
                     var (predictedOutput, layerInputs, potentialGradients) = ForwardPropagate(trainingExample);
@@ -186,17 +184,6 @@ public class NeuralNetwork(
             yield return (inputs[startIndex % inputsLength], expectedResults[startIndex % inputsLength]);
             startIndex++;
             examplesCount++;
-        }
-    }
-
-    private void CheckInputDimensionMatchesFirstLayerOrThrow(float[] input)
-    {
-        var firstLayerInputLength = Layers.FirstOrDefault()?.InputSize;
-        if (firstLayerInputLength != input.Length)
-        {
-            throw new ArgumentException(
-                $"Input length ({input.Length}) has to match first layer input size ({firstLayerInputLength})!"
-            );
         }
     }
 }
