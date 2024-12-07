@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
-using NN.Benchmarking;
+using NN.Benchmarking.ActivationFunctions;
 
-BenchmarkRunner.Run<SingeDoubleBenchmark>();
+BenchmarkRunner.Run<SoftmaxActivationBenchmark>();
+BenchmarkRunner.Run<SoftmaxDeriveBenchmark>();
