@@ -28,7 +28,7 @@ public interface ILayer
     /// Apply all neuron gradients to the weights of the layer
     void UpdateWeights(float[,] layerGradients, IOptimizer optimizer, int batchSize);
 
-    (float[] output, float[] potentialGradients) DoForwardPass(float[] input);
+    (float[] output, float[] potentialGradients) DoForwardPass(float[] input, bool isTraining);
 
     float[] DoBackpropagation(float[] topLayerGradient, float[] layerInput, float[] innerPotentialGradients,
         ref float[,] layerBatchGradients);

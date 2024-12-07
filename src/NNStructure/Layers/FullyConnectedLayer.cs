@@ -61,7 +61,7 @@ public class FullyConnectedLayer(
         optimizer.LearningRate = previousLearningRate;
     }
 
-    public (float[] output, float[] potentialGradients) DoForwardPass(float[] input)
+    public (float[] output, float[] potentialGradients) DoForwardPass(float[] input, bool isTraining)
     {
         var innerPotentials = new float[_outputSize]; // Inner potentials of neurons
         Parallel.For(0, _outputSize, new ParallelOptions { MaxDegreeOfParallelism = 16 }, i =>

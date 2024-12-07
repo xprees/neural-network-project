@@ -29,7 +29,8 @@ public class NeuralNetwork(
     }
 
     /// Does the forward propagation for the input vector and returns prediction vector 
-    public (float[] prediction, float[][] layerInputs, float[][] layersInnerPotentials) ForwardPropagate(float[] input)
+    public (float[] prediction, float[][] layerInputs, float[][] layersInnerPotentials) ForwardPropagate(float[] input,
+        bool isTraining)
     {
         var layerInputs = new float[Layers.Count][];
         var layersInnerPotentials = new float[Layers.Count][];
@@ -39,7 +40,7 @@ public class NeuralNetwork(
             var layer = Layers[i];
 
             layerInputs[i] = output;
-            var (layerOutput, innerPotentials) = layer.DoForwardPass(output);
+            var (layerOutput, innerPotentials) = layer.DoForwardPass(output, isTraining);
             output = layerOutput;
             layersInnerPotentials[i] = innerPotentials;
         }
@@ -87,7 +88,7 @@ public class NeuralNetwork(
                 Parallel.For(0, miniBatch.Length, new ParallelOptions { MaxDegreeOfParallelism = 16 }, k =>
                 {
                     var (trainingExample, expectedResult) = miniBatch[k];
-                    var (predictedOutput, layerInputs, potentialGradients) = ForwardPropagate(trainingExample);
+                    var (predictedOutput, layerInputs, potentialGradients) = ForwardPropagate(trainingExample, true);
 
                     var kthBatchGradients =
                         BackPropagate(predictedOutput, expectedResult, layerInputs, potentialGradients);
@@ -127,7 +128,7 @@ public class NeuralNetwork(
         var predictions = new float[inputs.Length][];
         for (var i = 0; i < inputs.Length; i++)
         {
-            predictions[i] = ForwardPropagate(inputs[i]).prediction;
+            predictions[i] = ForwardPropagate(inputs[i], false).prediction;
         }
 
         return predictions;
