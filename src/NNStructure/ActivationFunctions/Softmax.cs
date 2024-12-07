@@ -5,12 +5,22 @@ public class Softmax : IActivationFunction
     public float[] ActivateLayer(float[] potentials)
     {
         var max = potentials.Max();
-        var softMax = potentials
-            .Select(x => x - max) // Subtracting the maximum value to prevent overflow
-            .Select(MathF.Exp)
-            .ToArray();
-        var sum = softMax.Sum();
-        return softMax.Select(x => x / sum).ToArray();
+        var expPotentials = new float[potentials.Length];
+        var sum = 0f;
+
+        for (var i = 0; i < potentials.Length; i++)
+        {
+            // Subtracting the maximum value to prevent overflow
+            expPotentials[i] = MathF.Exp(potentials[i] - max);
+            sum += expPotentials[i];
+        }
+
+        for (var i = 0; i < expPotentials.Length; i++)
+        {
+            expPotentials[i] /= sum;
+        }
+
+        return expPotentials;
     }
 
 
