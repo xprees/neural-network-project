@@ -33,19 +33,27 @@ public record NnRunLog(List<NnEpochLog> EpochLogs, MnistNnOptions Options)
         writer.Flush();
     }
 
-    public override string ToString() =>
-        "================ RUN ===============\n" +
-        $"Parameters: {Options}\n" +
-        $"Best Accuracy: {BestAccuracy * 100:F2}%\n" +
-        $"Total time: {TotalTimeTook / 1000f / 60f:F2} mins\n" +
-        $"Average Accuracy: {AverageAccuracy * 100:F2}%\n" +
-        $"Min Accuracy: {MinAccuracy * 100:F2}%\n" +
-        "=====================================\n" +
-        "=========== TEST SET Metric ========\n" +
-        $"{FinalTestMetrics}\n" +
-        "========== TRAINING SET Metric ======\n" +
-        $"{FinalTrainMetrics}\n" +
-        "=====================================\n" +
-        "Epoch Logs:\n" +
-        string.Join("\n", EpochLogs.Select(l => $"\t{l}"));
+    public override string ToString()
+    {
+        var runStats =
+            "================ RUN ===============\n" +
+            $"Parameters: {Options}\n" +
+            $"Total time: {TotalTimeTook / 1000f / 60f:F2} mins\n" +
+            "=====================================\n" +
+            "=========== TEST SET Metric ========\n" +
+            $"{FinalTestMetrics}\n" +
+            "========== TRAINING SET Metric ======\n" +
+            $"{FinalTrainMetrics}\n" +
+            "=====================================\n";
+
+        if (EpochLogs.Count <= 0) return runStats;
+
+        return runStats +
+               "=========== ADVANCED STATS ===============\n" +
+               $"Best Accuracy: {BestAccuracy * 100:F2}%\n" +
+               $"Average Accuracy: {AverageAccuracy * 100:F2}%\n" +
+               $"Min Accuracy: {MinAccuracy * 100:F2}%\n" +
+               "=========== EPOCHS ===============\n" +
+               string.Join("\n", EpochLogs.Select(l => l.ToString()));
+    }
 }
