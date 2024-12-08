@@ -37,7 +37,7 @@ public record NnRunLog(List<NnEpochLog> EpochLogs, MnistNnOptions Options)
         "================ RUN ===============\n" +
         $"Parameters: {Options}\n" +
         $"Best Accuracy: {BestAccuracy * 100:F2}%\n" +
-        $"Total time: {TotalTimeTook / 1000 / 60:F2} mins\n" +
+        $"Total time: {TotalTimeTook / 1000f / 60f:F2} mins\n" +
         $"Average Accuracy: {AverageAccuracy * 100:F2}%\n" +
         $"Min Accuracy: {MinAccuracy * 100:F2}%\n" +
         "=====================================\n" +
