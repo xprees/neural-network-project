@@ -17,7 +17,8 @@ public record NnRunLog(List<NnEpochLog> EpochLogs, MnistNnOptions Options)
     public float BestAccuracy => EpochLogs.Max(l => l.Accuracy);
     public float MinAccuracy => EpochLogs.Min(l => l.Accuracy);
 
-    public StatisticalMetrics FinalMetrics { get; set; }
+    public StatisticalMetrics FinalTestMetrics { get; set; }
+    public StatisticalMetrics FinalTrainMetrics { get; set; }
 
     public long TotalTimeTook { get; set; }
 
@@ -40,7 +41,10 @@ public record NnRunLog(List<NnEpochLog> EpochLogs, MnistNnOptions Options)
         $"Average Accuracy: {AverageAccuracy * 100:F2}%\n" +
         $"Min Accuracy: {MinAccuracy * 100:F2}%\n" +
         "=====================================\n" +
-        $"Final Metrics: {FinalMetrics}\n" +
+        "=========== TEST SET Metric ========\n" +
+        $"{FinalTestMetrics}\n" +
+        "========== TRAINING SET Metric ======\n" +
+        $"{FinalTrainMetrics}\n" +
         "=====================================\n" +
         "Epoch Logs:\n" +
         string.Join("\n", EpochLogs.Select(l => $"\t{l}"));
