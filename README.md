@@ -1,8 +1,9 @@
 Václav Bílý - 492865
+Jan Maceček - 514483
 
 ## PV021 project -- Deep Learning from Scratch
 
-Project is implemented in .NET 8 and supports native AOT compilation.
+Project is implemented in .NET 8 and supports native AOT compilation, but JIT compilation seems to be more performant out-of-the box.
 
 ### DEADLINE
 
