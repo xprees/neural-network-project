@@ -5,7 +5,7 @@ namespace NNProject.Logging;
 
 public record NnEpochLog(int Epoch, StatisticalMetrics Stats, float Accuracy, float Loss, long TimeTook)
 {
-    public void LogToConsole() => Console.WriteLine($"\t{ToString()}");
+    public void LogToConsole(string prefix = "") => Console.WriteLine($"\t{prefix}{ToString()}");
 
     public override string ToString() =>
         $"Epoch: {Epoch + 1:00} - Accuracy {Accuracy * 100:F2}% - Loss {Loss:F4} - Time {TimeTook} ms";

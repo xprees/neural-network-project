@@ -19,6 +19,9 @@ public class MnistNn(MnistNnOptions options)
 {
     private const int ClassesCount = 10;
 
+    private readonly string _rootRepoPath =
+        Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+
     private readonly OneHotEncoder<int> _oneHotEncoder = new(Enumerable.Range(0, ClassesCount));
     private readonly Preprocessing _preprocessing = new();
     private readonly MnistEvaluator _evaluator = new();
@@ -37,6 +40,8 @@ public class MnistNn(MnistNnOptions options)
     /// Enable or disable logging to console
     public bool Logging { get; set; } = true;
 
+    public bool SkipOnEpochTesting { get; set; } = false;
+
     private NeuralNetwork CreateNetwork()
     {
         _lossFunction = new CrossEntropy();
@@ -46,7 +51,7 @@ public class MnistNn(MnistNnOptions options)
             new Adam(_learningRate, _decayRateOrBeta1, _beta2),
             _seed
         );
-        nn.AddLayer(new FullyConnectedDropoutLayer(784, 256, new Relu(), 0.5f));
+        nn.AddLayer(new FullyConnectedDropoutLayer(784, 256, new Relu(), 0.2f));
         nn.AddLayer(new FullyConnectedLayer(256, ClassesCount, new Softmax()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
 
@@ -121,20 +126,45 @@ public class MnistNn(MnistNnOptions options)
 
         var (testData, testLabels, testLabelsOneHot) = LoadTestingData(testDataPath, testLabelsPath);
 
+        var trainLabels1D = trainLabels.Select(x => x.First()).ToArray();
+
         var epochStopwatch = new DisposableStopwatch();
         nn.OnEpochEnd += (_, arg) =>
         {
-            var (epochResult, epochStats) = TestNetwork(nn, testData, testLabels);
+            if (SkipOnEpochTesting)
+            {
+                if (Logging)
+                {
+                    Console.WriteLine($"\tEpoch {arg.Epoch + 1} completed in {epochStopwatch.ElapsedMilliseconds} ms");
+                }
 
-            var loss = epochResult.Zip(testLabelsOneHot,
+                return;
+            }
+
+            var (testEpochResult, testEpochStats) = TestNetwork(nn, testData, testLabels);
+            var (trainEpochResult, trainEpochStats) = TestNetwork(nn, trainData, trainLabels1D);
+
+            // Test Data test
+            var loss = testEpochResult.Zip(testLabelsOneHot,
                     (predicted, expected) => _lossFunction.Calculate(predicted, expected))
                 .Average();
 
             var epochTime = epochStopwatch.ElapsedMilliseconds;
-            var epochLog = new NnEpochLog(arg.Epoch, epochStats, epochStats.Accuracy, loss, epochTime);
+            var epochLog = new NnEpochLog(arg.Epoch, testEpochStats, testEpochStats.Accuracy, loss, epochTime);
             runLog.AddLog(epochLog);
 
-            if (Logging) epochLog.LogToConsole();
+            if (Logging)
+            {
+                // Train Data test
+                var trainLoss = trainEpochResult.Zip(trainingExpectedOutput,
+                        (predicted, expected) => _lossFunction.Calculate(predicted, expected))
+                    .Average();
+                var epochLogTrain =
+                    new NnEpochLog(arg.Epoch, trainEpochStats, trainEpochStats.Accuracy, trainLoss, epochTime);
+
+                epochLog.LogToConsole();
+                epochLogTrain.LogToConsole("Train-");
+            }
 
             epochStopwatch.Restart();
         };
@@ -145,13 +175,12 @@ public class MnistNn(MnistNnOptions options)
         var (testResult, testStats) = TestNetwork(nn, testData, testLabels);
         runLog.FinalTestMetrics = testStats;
 
-        var (trainResult, trainStats) = TestNetwork(nn, trainInput, trainLabels.Select(x => x.First()).ToArray());
+        var (trainResult, trainStats) = TestNetwork(nn, trainInput, trainLabels1D);
         runLog.FinalTrainMetrics = trainStats;
 
         runLog.TotalTimeTook = stopWatch.ElapsedMilliseconds;
-        var rootRepoPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        ExportResults(testResult, $"{rootRepoPath}/test_predictions.csv");
-        ExportResults(trainResult, $"{rootRepoPath}/train_predictions.csv");
+        ExportResults(testResult, $"{_rootRepoPath}/test_predictions.csv");
+        ExportResults(trainResult, $"{_rootRepoPath}/train_predictions.csv");
 
         return runLog;
     }
