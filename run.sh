@@ -7,10 +7,11 @@ echo "#################"
 echo "    COMPILING    "
 echo "#################"
 
+## We will use JIT compilation -> tends to be faster
 
 ## compile the code -> dotnet native AOT compilation
-dotnet publish src/NNProject/NNProject.csproj --sc -c Release -o ./build
-chmod u+x ./build/NNProject
+#dotnet publish src/NNProject/NNProject.csproj --sc -c Release -o ./build
+#chmod u+x ./build/NNProject
 
 
 echo "#################"
@@ -22,5 +23,6 @@ echo "#################"
 ## especially if you are using multiple cores
 # nice -n 19 ./network
 
+#nice -n 19 ./build/NNProject
 
-nice -n 19 ./build/NNProject
+nice -n 19 dotnet run --project src/NNProject/NNProject.csproj -c Release
