@@ -133,6 +133,8 @@ public class MnistNn(MnistNnOptions options)
                     Console.WriteLine($"\tEpoch {arg.Epoch + 1} completed in {epochStopwatch.ElapsedMilliseconds} ms");
                 }
 
+                epochStopwatch.Restart();
+
                 return;
             }
 
