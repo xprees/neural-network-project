@@ -137,11 +137,15 @@ public class MnistNn(MnistNnOptions options)
         epochStopwatch.Start();
         TrainNetwork(nn, trainInput, trainingExpectedOutput);
 
-        var (result, stats) = TestNetwork(nn, testData, testLabels);
+        var (testResult, testStats) = TestNetwork(nn, testData, testLabels);
+        runLog.FinalTestMetrics = testStats;
 
-        runLog.FinalMetrics = stats;
+        var (trainResult, trainStats) = TestNetwork(nn, trainInput, trainLabels.Select(x => x.First()).ToArray());
+        runLog.FinalTrainMetrics = trainStats;
+
         runLog.TotalTimeTook = stopWatch.ElapsedMilliseconds;
-        ExportResults(result, "./results.csv");
+        ExportResults(testResult, "./test_predictions.csv");
+        ExportResults(trainResult, "./train_predictions.csv");
 
         return runLog;
     }
