@@ -5,6 +5,9 @@
 .vs
 
 data
+# Nn output
+test_predictions.csv
+train_predictions.csv
 
 build/
 bin/

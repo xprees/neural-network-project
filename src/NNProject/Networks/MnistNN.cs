@@ -46,9 +46,14 @@ public class MnistNn(MnistNnOptions options)
             new Adam(_learningRate, _decayRateOrBeta1, _beta2),
             _seed
         );
-        nn.AddLayer(new FullyConnectedLayer(784, 256, new Relu()));
+        nn.AddLayer(new FullyConnectedDropoutLayer(784, 256, new Relu(), 0.5f));
         nn.AddLayer(new FullyConnectedLayer(256, ClassesCount, new Softmax()));
         // Make sure you are using Softmax in the output layer when using CrossEntropy loss function
+
+        // Expected Implementation tweaked
+        //nn.AddLayer(new FullyConnectedDropoutLayer(784, 256, new Relu(), 0.4f, seed: _seed));
+        //nn.AddLayer(new FullyConnectedDropoutLayer(256, 64, new Relu(), 0.1f, seed: _seed));
+        //nn.AddLayer(new FullyConnectedLayer(64, ClassesCount, new Softmax()));
 
         return nn;
     }
@@ -144,8 +149,9 @@ public class MnistNn(MnistNnOptions options)
         runLog.FinalTrainMetrics = trainStats;
 
         runLog.TotalTimeTook = stopWatch.ElapsedMilliseconds;
-        ExportResults(testResult, "./test_predictions.csv");
-        ExportResults(trainResult, "./train_predictions.csv");
+        var rootRepoPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        ExportResults(testResult, $"{rootRepoPath}/test_predictions.csv");
+        ExportResults(trainResult, $"{rootRepoPath}/train_predictions.csv");
 
         return runLog;
     }
