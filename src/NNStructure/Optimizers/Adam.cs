@@ -6,7 +6,7 @@ public class Adam(float learningRate = 0.001f, float beta1 = 0.9f, float beta2 =
 {
     public float LearningRate { get; set; } = learningRate;
 
-    public int TimeStep { get; set; }
+    public int TimeStep { get; set; } = 1;
 
     public float Beta1 { get; set; } = beta1;
 
