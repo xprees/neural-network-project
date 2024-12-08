@@ -45,5 +45,5 @@ public struct StatisticalMetrics()
     }
 
     public override string ToString() =>
-        $"Accuracy: {Accuracy:F}\nPrecision: {Precision:F}\nRecall: {Recall:F}\nF1 Score: {F1Score:F}";
+        $"Accuracy: {Accuracy * 100:2F}\nPrecision: {Precision:F}\nRecall: {Recall:F}\nF1 Score: {F1Score:F}";
 }
