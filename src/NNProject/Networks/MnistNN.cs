@@ -201,10 +201,17 @@ public class MnistNn(MnistNnOptions options)
 
     private void ExportResults(float[][] result, string path)
     {
-        var decodedResult = _oneHotEncoder.Decode(result);
-        ResultExporter.ExportResultsAsCsv(path, decodedResult);
+        try
+        {
+            var decodedResult = _oneHotEncoder.Decode(result);
+            ResultExporter.ExportResultsAsCsv(path, decodedResult);
 
-        if (Logging) Console.WriteLine($"Results exported to {path}");
+            if (Logging) Console.WriteLine($"Results exported to {path}");
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error exporting results: {e.Message}");
+        }
     }
 
     #endregion
