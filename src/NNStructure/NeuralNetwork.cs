@@ -154,9 +154,9 @@ public class NeuralNetwork(
             for (var layerIndex = 0; layerIndex < layersCount; layerIndex++)
             {
                 var neuronsCount = layersGradients[layerIndex].GetLength(0);
+                var weightsCount = layersGradients[layerIndex].GetLength(1);
                 for (var i = 0; i < neuronsCount; i++)
                 {
-                    var weightsCount = layersGradients[layerIndex].GetLength(1);
                     for (var j = 0; j < weightsCount; j++)
                     {
                         // Average the gradients for each layer 
