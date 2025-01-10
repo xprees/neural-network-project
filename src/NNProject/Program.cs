@@ -1,3 +1,4 @@
+using System.Globalization;
 using NNProject.Networks;
 using NNProject.Performance;
 
@@ -10,11 +11,16 @@ totalStopwatch.Start();
 // { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.0002, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 86.35% (same)
 // { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.00025, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 85.65% (same) -> 784 -> 128 -> 64 -> 10
 // Parameters: MnistNnOptions { MaxEpochs = 25, BatchSize = 512, LearningRate = 0.00012, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 1, ShuffleData = True } - (19 ep) 87.29% (784 -> 256 -> 10)
+// { MaxEpochs = 35, BatchSize = 256, LearningRate = 0.0001, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 1, ShuffleData = True }) - 87.76% after 22 epochs (sloow) - 784 -> 512 (drop 0.6) -> 64 (drop 0.2) -> 10
+var epochs = args.Length > 1 ? int.Parse(args[0]) : 15;
+var batchSize = args.Length > 2 ? int.Parse(args[1]) : 512;
+var learningRate = args.Length > 3 ? float.Parse(args[2].Replace(",", "."), NumberStyles.Float) : 0.00012f;
+var seed = args.Length > 4 ? int.Parse(args[3]) : 1;
 
-var mnistNn = new MnistNn(new MnistNnOptions(10, 512, 0.000125f, Seed: 1))
+var mnistNn = new MnistNn(new MnistNnOptions(epochs, batchSize, learningRate, Seed: seed))
 {
     Logging = true,
-    SkipOnEpochTesting = true
+    SkipOnEpochTesting = false
 };
 var log = mnistNn.Run();
 
