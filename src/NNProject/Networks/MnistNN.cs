@@ -48,7 +48,7 @@ public class MnistNn(MnistNnOptions options)
         var nn = new NeuralNetwork(
             _lossFunction,
             new GlorotWeightInitializer(_seed),
-            new Adam(_learningRate, _decayRateOrBeta1, _beta2),
+            new AdamW(_learningRate, _decayRateOrBeta1, _beta2, 0.001f),
             _seed
         );
         nn.AddLayer(new FullyConnectedDropoutLayer(784, 512, new Relu(), 0.6f));
