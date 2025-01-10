@@ -40,8 +40,6 @@ public class MnistNn(MnistNnOptions options)
     /// Enable or disable logging to console
     public bool Logging { get; set; } = true;
 
-    public bool SkipOnEpochTesting { get; set; } = false;
-
     private NeuralNetwork CreateNetwork()
     {
         _lossFunction = new CrossEntropy();
@@ -117,51 +115,18 @@ public class MnistNn(MnistNnOptions options)
         var (trainData, trainLabels) = LoadTrainingData(trainDataPath, trainLabelsPath);
 
         var (trainInput, trainingExpectedOutput) = PreprocessTrainingData(trainData, trainLabels);
+        var trainLabels1D = trainLabels.Select(x => x.First()).ToArray();
 
         var nn = CreateNetwork();
 
-        var (testData, testLabels, testLabelsOneHot) = LoadTestingData(testDataPath, testLabelsPath);
-
-        var trainLabels1D = trainLabels.Select(x => x.First()).ToArray();
+        var (testData, testLabels, _) = LoadTestingData(testDataPath, testLabelsPath);
 
         var epochStopwatch = new DisposableStopwatch();
         nn.OnEpochEnd += (_, arg) =>
         {
-            if (SkipOnEpochTesting)
-            {
-                if (Logging)
-                {
-                    Console.WriteLine($"\tEpoch {arg.Epoch + 1} completed in {epochStopwatch.ElapsedMilliseconds} ms");
-                }
-
-                epochStopwatch.Restart();
-
-                return;
-            }
-
-            var (testEpochResult, testEpochStats) = TestNetwork(nn, testData, testLabels);
-            var (trainEpochResult, trainEpochStats) = TestNetwork(nn, trainData, trainLabels1D);
-
-            // Test Data test
-            var loss = testEpochResult.Zip(testLabelsOneHot,
-                    (predicted, expected) => _lossFunction.Calculate(predicted, expected))
-                .Average();
-
-            var epochTime = epochStopwatch.ElapsedMilliseconds;
-            var epochLog = new NnEpochLog(arg.Epoch, testEpochStats, testEpochStats.Accuracy, loss, epochTime);
-            runLog.AddLog(epochLog);
-
             if (Logging)
             {
-                // Train Data test
-                var trainLoss = trainEpochResult.Zip(trainingExpectedOutput,
-                        (predicted, expected) => _lossFunction.Calculate(predicted, expected))
-                    .Average();
-                var epochLogTrain =
-                    new NnEpochLog(arg.Epoch, trainEpochStats, trainEpochStats.Accuracy, trainLoss, epochTime);
-
-                epochLog.LogToConsole();
-                epochLogTrain.LogToConsole("Train-");
+                Console.WriteLine($"\tEpoch {arg.Epoch + 1} completed in {epochStopwatch.ElapsedMilliseconds} ms");
             }
 
             epochStopwatch.Restart();
