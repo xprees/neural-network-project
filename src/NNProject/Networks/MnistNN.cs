@@ -58,34 +58,33 @@ public class MnistNn(MnistNnOptions options)
         return nn;
     }
 
-    private (float[][] trainInput, float[][] trainingExpectedOutput) PreprocessTrainingData(
-        float[][] trainData, float[][] trainLabels)
+    private (float[][] data, float[][] dataLabelsOneHot) PreprocessData(float[][] inputData, float[][] inputLabels)
     {
         using var stopwatch = new DisposableStopwatch();
         stopwatch.Start();
         if (Logging) Console.WriteLine("Preprocessing data...");
 
-        var trainInput = _preprocessing
-            .NormalizeByDivision(trainData)
+        var processedData = _preprocessing
+            .NormalizeByDivision(inputData)
             .ToArray();
 
-        var trainingExpectedOutput = _oneHotEncoder
-            .Encode(trainLabels.Select(x => (int)x.First()))
+        var processedLabels = _oneHotEncoder
+            .Encode(inputLabels.Select(x => (int)x.First()))
             .ToArray();
 
         var preprocessingTime = stopwatch.ElapsedMilliseconds;
         if (Logging) Console.WriteLine($"[DONE] Preprocessing data... Time: {preprocessingTime} ms");
 
-        return (trainInput, trainingExpectedOutput);
+        return (processedData, processedLabels);
     }
 
     private (float[][] result, StatisticalMetrics stats) TestNetwork(
-        NeuralNetwork nn, float[][] testData, float[] testLabels
+        NeuralNetwork nn, float[][] testData, float[] testLabels1D
     )
     {
         var result = nn.Test(testData);
 
-        var stats = _evaluator.EvaluateModel(result, testLabels);
+        var stats = _evaluator.EvaluateModel(result, testLabels1D);
 
         return (result, stats);
     }
@@ -111,17 +110,14 @@ public class MnistNn(MnistNnOptions options)
         using var stopWatch = new DisposableStopwatch();
         stopWatch.Start();
 
-        var (trainDataPath, trainLabelsPath, testDataPath, testLabelsPath) = GetDatasetFilesPaths(args ?? []);
-
-        var (trainData, trainLabels) = LoadTrainingData(trainDataPath, trainLabelsPath);
-
-        var (trainInput, trainingExpectedOutput) = PreprocessTrainingData(trainData, trainLabels);
+        var (
+            trainData, trainLabelsOneHot,
+            validationData, validationLabelsOneHot
+            ) = GetTrainingAndValidationData(args ?? []);
+        var trainLabels1D = trainLabelsOneHot.Select(x => x.First()).ToArray();
+        var validationLabels1D = validationLabelsOneHot.Select(x => x.First()).ToArray();
 
         var nn = CreateNetwork();
-
-        var (testData, testLabels, testLabelsOneHot) = LoadTestingData(testDataPath, testLabelsPath);
-
-        var trainLabels1D = trainLabels.Select(x => x.First()).ToArray();
 
         var epochStopwatch = new DisposableStopwatch();
         nn.OnEpochEnd += (_, arg) =>
@@ -138,41 +134,39 @@ public class MnistNn(MnistNnOptions options)
                 return;
             }
 
-            var (testEpochResult, testEpochStats) = TestNetwork(nn, testData, testLabels);
-            var (trainEpochResult, trainEpochStats) = TestNetwork(nn, trainData, trainLabels1D);
+            var (validationEpochResult, validationEpochStats) = TestNetwork(nn, validationData, validationLabels1D);
 
-            // Test Data test
-            var loss = testEpochResult.Zip(testLabelsOneHot,
+            // Validation
+            var validationLoss = validationEpochResult.Zip(validationLabelsOneHot,
                     (predicted, expected) => _lossFunction.Calculate(predicted, expected))
                 .Average();
 
             var epochTime = epochStopwatch.ElapsedMilliseconds;
-            var epochLog = new NnEpochLog(arg.Epoch, testEpochStats, testEpochStats.Accuracy, loss, epochTime);
+            var epochLog = new NnEpochLog(arg.Epoch, validationEpochStats, validationEpochStats.Accuracy,
+                validationLoss,
+                epochTime);
             runLog.AddLog(epochLog);
 
             if (Logging)
             {
-                // Train Data test
-                var trainLoss = trainEpochResult.Zip(trainingExpectedOutput,
-                        (predicted, expected) => _lossFunction.Calculate(predicted, expected))
-                    .Average();
-                var epochLogTrain =
-                    new NnEpochLog(arg.Epoch, trainEpochStats, trainEpochStats.Accuracy, trainLoss, epochTime);
-
                 epochLog.LogToConsole();
-                epochLogTrain.LogToConsole("Train-");
             }
 
             epochStopwatch.Restart();
         };
 
         epochStopwatch.Start();
-        TrainNetwork(nn, trainInput, trainingExpectedOutput);
+        TrainNetwork(nn, trainData, trainLabelsOneHot);
 
-        var (testResult, testStats) = TestNetwork(nn, testData, testLabels);
+        // Evaluate Test Data
+        var (testData, testLabelsOneHot) = GetTestingData(args ?? []);
+        var testLabels1D = testLabelsOneHot.Select(x => x.First()).ToArray();
+
+        var (testResult, testStats) = TestNetwork(nn, testData, testLabels1D);
         runLog.FinalTestMetrics = testStats;
 
-        var (trainResult, trainStats) = TestNetwork(nn, trainInput, trainLabels1D);
+        // Evaluate Training Data
+        var (trainResult, trainStats) = TestNetwork(nn, trainData, trainLabels1D);
         runLog.FinalTrainMetrics = trainStats;
 
         runLog.TotalTimeTook = stopWatch.ElapsedMilliseconds;
@@ -183,6 +177,36 @@ public class MnistNn(MnistNnOptions options)
     }
 
     #region Data handling
+
+    private (float[][] trainData, float[][] trainLabelsOneHot, float[][] validationData, float[][]validationLabelsOneHot
+        )
+        GetTrainingAndValidationData(string[] args)
+    {
+        var (trainDataPath, trainLabelsPath, _, _) = GetDatasetFilesPaths(args);
+        var (inputTrainData, inputTrainLabels) = LoadTrainingData(trainDataPath, trainLabelsPath);
+        var (trainingData, trainingExpectedOutput) = PreprocessData(inputTrainData, inputTrainLabels); // TODO fix
+
+        // Split data into 80% training and 20% validation 
+        var validationDataCount = (int)(trainingData.Length * 0.2f);
+
+        var validationData = trainingData.Take(validationDataCount).ToArray();
+        var validationLabelsOneHot = trainingExpectedOutput.Take(validationDataCount).ToArray();
+
+        var trainData = trainingData.Skip(validationDataCount).ToArray();
+        var trainLabelsOneHot = trainingExpectedOutput.Skip(validationDataCount).ToArray();
+
+        return (trainData, trainLabelsOneHot, validationData, validationLabelsOneHot);
+    }
+
+    private (float[][] testData, float[][] testLabelsOneHot) GetTestingData(string[] args)
+    {
+        var (_, _, testDataPath, testLabelsPath) = GetDatasetFilesPaths(args);
+        var (rawTestData, rawTestLabelsOneHot) = LoadTestingData(testDataPath, testLabelsPath);
+
+        var (testData, testLabelsOneHotProcessed) = PreprocessData(rawTestData, rawTestLabelsOneHot); // TODO fix
+
+        return (testData, testLabelsOneHotProcessed);
+    }
 
     private (float[][] trainData, float[][] trainLabels) LoadTrainingData(string trainDataPath, string trainLabelsPath)
     {
@@ -202,7 +226,7 @@ public class MnistNn(MnistNnOptions options)
         return (trainData, trainLabels);
     }
 
-    private (float[][] testData, float[] testLabels, float[][] testLabelsOneHot) LoadTestingData(string testDataPath,
+    private (float[][] testData, float[][] testLabelsOneHot) LoadTestingData(string testDataPath,
         string testLabelsPath)
     {
         using var stopwatch = new DisposableStopwatch();
@@ -214,15 +238,15 @@ public class MnistNn(MnistNnOptions options)
 
         using var testLabelsLoader = new DataLoader(testLabelsPath);
         var testLabels = testLabelsLoader.ReadAllVectors()
-            .Select(l => l.First())
-            .ToArray();
+            .Select(l => l.First()) // Load first scalar of vector
+            .Select(x => (int)x); // Runtime float -> int cast 
 
-        var testLabelsOneHot = _oneHotEncoder.Encode(testLabels.Select(x => (int)x)).ToArray();
+        var testLabelsOneHot = _oneHotEncoder.Encode(testLabels).ToArray();
 
         var testDataTime = stopwatch.ElapsedMilliseconds;
         if (Logging) Console.WriteLine($"[DONE] Loading test data... Time: {testDataTime} ms");
 
-        return (testData, testLabels, testLabelsOneHot);
+        return (testData, testLabelsOneHot);
     }
 
     private void ExportResults(float[][] result, string path)
