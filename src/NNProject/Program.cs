@@ -14,7 +14,7 @@ totalStopwatch.Start();
 var mnistNn = new MnistNn(new MnistNnOptions(35, 512, 0.000125f, Seed: 1))
 {
     Logging = true,
-    SkipOnEpochTesting = true
+    SkipOnEpochTesting = false
 };
 var log = mnistNn.Run();
 
