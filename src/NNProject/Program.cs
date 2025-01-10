@@ -11,7 +11,7 @@ totalStopwatch.Start();
 // { MaxEpochs = 50, BatchSize = 1024, LearningRate = 0.00025, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 42 } - 85.65% (same) -> 784 -> 128 -> 64 -> 10
 // Parameters: MnistNnOptions { MaxEpochs = 25, BatchSize = 512, LearningRate = 0.00012, DecayRateOrBeta1 = 0.9, Beta2 = 0.999, Seed = 1, ShuffleData = True } - (19 ep) 87.29% (784 -> 256 -> 10)
 
-var mnistNn = new MnistNn(new MnistNnOptions(10, 512, 0.000125f, Seed: 1))
+var mnistNn = new MnistNn(new MnistNnOptions(35, 512, 0.000125f, Seed: 1))
 {
     Logging = true,
     SkipOnEpochTesting = true
