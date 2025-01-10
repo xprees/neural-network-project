@@ -75,6 +75,12 @@ public class NeuralNetwork(
                 (inputs, expectedResults) = ShuffleData(inputs, expectedResults);
             }
 
+            // Reduce learning rate every 10 epochs
+            if (epoch > 0 && epoch % 5 == 0)
+            {
+                optimizer.LearningRate *= 0.5f;
+            }
+
             for (var miniBatchRun = 0; miniBatchRun < miniBatchRuns; miniBatchRun++)
             {
                 Layers.ForEach(l => l.ResetStateBeforeNewBatchRun());
